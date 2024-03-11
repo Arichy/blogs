@@ -77,7 +77,7 @@ As shown in the figure, the `createServer` method of `net` module is actually to
 
 Let's run `node server.js` , and then run `node client.js`. The result is below:
 
-![tcp-demo](./imgs/3-1.png)
+![tcp-demo](https://github.com/Arichy/blogs/blob/main/docs/socks5/imgs/3-1.png?raw=true)
 
 According the the introduce of Buffer in last article, we know that server received the message from client: `Hello from client`, and sent a message `Hello from server` to client, in a way of TPC transmission. 
 
@@ -103,7 +103,7 @@ server.listen(4001);
 ```
 
 Then we we visit `localhost:4001` on browser, the console would print logs as below:
-![HTTP request message](./imgs/4-1.png)
+![HTTP request message](https://github.com/Arichy/blogs/blob/main/docs/socks5/imgs/4-1.png?raw=true)
 
 The server received a string with an HTTP request message content. In the meanwhile, the browser will be loading status because server does not return any response.
 
@@ -146,7 +146,7 @@ server.listen(4001);
 
 Now we visit it again:
 
-<img src="./imgs/4-2.png" style="border:1px solid skyblue" />
+<img src="https://github.com/Arichy/blogs/blob/main/docs/socks5/imgs/4-2.png?raw=true" style="border:1px solid skyblue" />
 
 It shows the html content in response. That's the essence of HTTP: a request has a corresponding response, while they are both text.
 
@@ -157,7 +157,7 @@ Besides, the port of HTTP is actually the port of TCP.
 # About proxy and socks5
 Proxy is a middleware server. Let's call client `C`, server `S`, proxy `P`. The relationship of them is like:
 
-![5-1](./imgs/5-1.png)
+![5-1](https://github.com/Arichy/blogs/blob/main/docs/socks5/imgs/5-1.png?raw=true)
 
 The job of proxy is to forward data. Assume there are some barriers between C and S (like the Great Fire Wall) forbidding the communication, but C and P, P and S could communicate freely, then we can use P to help the communication between C and S.
 
@@ -242,7 +242,7 @@ BND.ADDR and BND.PORT is the ip address and port of proxy, not target server. Pr
 After the initialize process above, client would send the real data to proxy, while proxy forwards it to target server. In a similar way, target server would send the response to proxy, while proxy forwards to client. These forwarding processes are just via TCP protocol we talked above.
 
 # Demo Code
-In the demo, we only focus on `CONNECT`  command with IPv4 and domain.
+In the demo, we only focus on `CONNECT` command with IPv4 and domain.
 ```javascript
 const net = require('net');
 
