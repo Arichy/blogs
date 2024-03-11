@@ -3,11 +3,11 @@ This article will explore ways to develop a simple version of shadowsocks.
 
 Because I'm not very familiar with networks, there may be some errors in it. Please feel free to point out them.
 
-- This article is for beginners and may be superficial.
+This article is for beginners and may be superficial.
 
-- This article only focuses on communications over TCP, not including UDP.
+This article only focuses on communications over TCP, not including UDP.
 
-- This article requires the basic knowledge of:
+This article requires the basic knowledge of:
 - JavaScript
 - Node.js
 - HTTP
