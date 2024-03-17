@@ -158,7 +158,7 @@ fn biggest_variant1_correct<'a, 'b: 'a>(x: &'a i32, y: &'b i32) -> &'a i32 {
 
 现在, 编译器知道 `'b` 比 `'a`活得长(或者相等), 成功编译.
 
-## Variant 2
+## 变种 2
 ```rust
 fn say_something_and_echo<'a, 'b>(x: &'a i32, y: &'b i32) -> &'a i32 {
 	println!("say {}", y);
@@ -167,7 +167,7 @@ fn say_something_and_echo<'a, 'b>(x: &'a i32, y: &'b i32) -> &'a i32 {
 }
 ```
 
-**Check Rules we tell compiler:**
+**我们告诉编译器的规则:**
 1. `x` 需要比 `res` 活得长(或者相等).
 
 编译器会抛出和变种 1 同样的错误, 因为真正的返回值是 `y`, 有着生命周期 `'b`, 但是在函数签名中标注的返回值生命周期是 `'a`. 编译器不知道 `'a`  和 `'b` 的关系. 我们也需要手动加一条 `'b: 'a` 作为限制.
