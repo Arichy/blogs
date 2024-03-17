@@ -47,8 +47,9 @@ Considering a function which takes one or more reference arguments and returns a
 So, let's ignore static lifetime for now. The answer for why compiler needs to know the relationships between arguments (references) and return value (reference), is that the return value must come from arguments, and compiler has to check if it's valid by `borrow checker`.
 
 # Borrow Checker
-Rust uses `borrow checker` to check if the reference is valid. In short, **borrow checker checks if the reference lives shorter than the referenced value** for the sake of avoiding dangling pointers.
-**Lifetime annotations are actually to assist borrow checker. They tell borrow checker the specific rules to follow and execute the check process.** And I found there is a confusing point in the ubiquitous demo code `longest`. The `&str`  values usually have a static lifetime by default. That's to say, the code below would get compiled and run successfully:
+Rust uses `borrow checker` to check if the reference is valid. In short, **borrow checker checks if the reference lives shorter than the referenced value** for the sake of avoiding dangling pointers. **Lifetime annotations are actually to assist borrow checker. They tell borrow checker the specific rules to follow and execute the check process.**
+
+And I found there is a confusing point in the ubiquitous demo code `longest`. The `&str`  values usually have a static lifetime by default. That's to say, the code below would get compiled and run successfully:
 
 ```rust
 let str1 = "hello"; // str1 has a static lifetime
@@ -70,16 +71,16 @@ Let's observe the code at the perspective of caller:
 
 ```rust
 fn main() {
-	let a: i32 = 13;
+	let x: i32 = 13;
 	let res: &i32;
 	{
-		let b: i32 = 6;
-		res = biggest(&a, &b); // Would it be res = &a ? or res = &b ? or res = SomeStruct { a: &a, b:&b }? It's unclear.
+		let y: i32 = 6;
+		res = biggest(&x, &y); // Would it be res = &x ? or res = &y ? or res = SomeStruct { x: &x, y:&y }? It's unclear.
 	}
 }
 ```
 
-Imagine you're the Rust compiler. Now, please tell me, do you allow the compilation? **You cannot make the decision because you don't know the `res` is from `a`, or from `b`, or both** (in a struct type containing both `a` and `b` ). **Your borrow checker does not know what rules to follow and check.** Should I check if `res`  outlives `'a` ? Or should I check if `res` outlives `b` ? Certainly you cannot just check both `a` and `b` because it's too arbitrary.
+Imagine you're the Rust compiler. Now, please tell me, do you allow the compilation? **You cannot make the decision because you don't know the `res` is from `x`, or from `y`, or both** (in a struct type containing both `x` and `y` ). **Your borrow checker does not know what rules to follow and check.** It only knows `reference cannot outlive referenced value`, and now `res` is absolutely `reference`, but who is the `referenced value`? `x` or `y`? Should I check if `res`  outlives `x` ? Or should I check if `res` outlives `y` ? You may choose to check if both `x` and `y` outlive `res`, but what if the `biggest` function only returns `x` while `y` is just a message to be printed? In this case `y` does not need any lifetime restriction but you add one. It's too arbitrary.
 
 That's why we need lifetime annotations.
 
@@ -101,6 +102,7 @@ That makes sense. And IMO we can memorize it in a simple way:
 > return value has a lifetime `'a`, while `x`  and `y` should both have a lifetime longer than `'a`.
 
 That's what I think the most close explanation to how Rust compiler thinks. Let's consider the following code:
+
 ```rust
 let x: i32 = 13;
 
@@ -117,7 +119,7 @@ println!("{}", res)
 It would fail to compile and compiler would throw the error:
 > `b` does not live long enough
 
-It's because we tell compiler the relationships between `x`, `y`, and `res` by lifetime: both `x` and `y` should outlive `res`. So compiler would check as the rule.
+It's because we tell compiler the relationships between `x`, `y`, and `res` by lifetime annotations: both `x` and `y` should outlive `res`. So compiler would check as the rule.
 1. If `x` outlives `res`? Yes, they have the same scope.
 2. If `y` outlives `res`? No, lifetime of `res` is longer than `y`. Refuse to compile.
 
@@ -170,7 +172,7 @@ fn say_something_and_echo<'a, 'b>(x: &'a i32, y: &'b i32) -> &'a i32 {
 **Check Rules we tell compiler:**
 1. `x` should outlive `res`.
 
-The compiler would throw the same error as variant 1, because compiler does not know the rules between real return value `y` with lifetime `'b` and `'a`. We need to add `'b: 'a` as well.
+The compiler would throw the same error as variant 1, because compiler does not know the rules between real return value `y` with lifetime `'b` and `'a` in function signature. We need to add `'b: 'a` as well.
 
 # Trifles
 
