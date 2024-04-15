@@ -105,7 +105,8 @@ Obviously the generic type `T` is parsed to `Store`, and the argument we pass is
 
 # Solutions
 ## Option 1
-The type annotation package already tells you the solution: "Usage note: if you need the result of useRef to be directly mutable, include `| null` in the type".
+The type annotation package already tells you the solution:
+> Usage note: if you need the result of useRef to be directly mutable, include `| null` in the type.
 
 So we can update the code and set the generic type of `useRef` to `Store | null`. I would remove the `domRef` related code to focus more on `storeRef`.
 ```typescript
