@@ -48,7 +48,7 @@ We use a way recommended by [React](https://react.dev/reference/react/useRef#avo
 One of pros is that `storeRef` is populated with `store` during the first execution of component, making it available in the first render result. So we can call `store.get('key')` in JSX without telling if `storeRef.current` is `null`.
 
 But the code above will throw an error:
-![TS error](https://github.com/Arichy/blogs/blob/main/docs/React/A common TypeScript error with useRef/imgs/1.png?raw=true)
+![TS error](https://github.com/Arichy/blogs/blob/main/docs/React/A-common-TypeScript-error-with-useRef/imgs/1.png?raw=true)
 TS tells us the `storeRef.current` is a read-only property, so we cannot change the value it holds.
 # Cause
 Let's take a look at the type annotations of `useRef`. It would be very easy if you're using VSCode.
@@ -143,7 +143,7 @@ function App() {
 }
 ```
 
-![TS type error](https://github.com/Arichy/blogs/blob/main/docs/React/A common TypeScript error with useRef/imgs/2.png?raw=true)
+![TS error](https://github.com/Arichy/blogs/blob/main/docs/React/A-common-TypeScript-error-with-useRef/imgs/2.png?raw=true)
 
 We can update the code simply by adding a protection:
 ```typescript
