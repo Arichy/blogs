@@ -91,7 +91,7 @@ interface RefObject<T> {
 	readonly current: T | null;
 }
 ```
-It seems that we created a `MutableRefObject` instead of `RefObject`.
+It seems that we created a `RefObject` instead of `MutableRefObject`.
 
 Let's recall the code we write and two overloads of `useRef`.
 ```typescript
