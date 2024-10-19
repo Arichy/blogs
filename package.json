@@ -9,7 +9,8 @@
   },
   "lint-staged": {
     "*.md": [
-      "node scripts/replaceImageUrl.js"
+      "node scripts/replaceImageUrl.js",
+      "node scripts/entriesInReadMe.js"
     ]
   }
 }
