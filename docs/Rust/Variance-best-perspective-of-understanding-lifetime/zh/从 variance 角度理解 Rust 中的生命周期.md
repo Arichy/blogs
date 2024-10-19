@@ -143,7 +143,7 @@ Rust [官方文档](https://doc.rust-lang.org/reference/subtyping.html#variance)
 
 我们重点关注前两行. 请特别注意, `&'a T` 本身是一个类型, 但是这个类型里包含了另外两个类型: `&'a` 和 `T`. `&'a T` 在 `&'a` 和 `T` 的 variance 是不同的. 请看表格, `&'a T` 和 `&'a mut T` 对于 `'a` 都是 covariant 的. **也就是说在需要 `&'a T` / `&'a mut T` 的地方, 我们可以放一个 `&'b T` / `&'b mut T`, 只要 `'b` 是 `'a` 的子类型, 即 `'b: 'a`. 请牢牢记住这句话**. 这句话将抹杀掉"两个生命周期中的最小值"这个容易产生歧义的理解方式, 让每个引用自己的生命周期更加清晰.
 
-## 生命周期 Covariance
+## 生命周期 covariance
 
 下面这段代码已经被使用过无数次了:
 
@@ -250,7 +250,7 @@ println!("{}", res); // 7
 
 可以看出, `&string2` 的生命周期确实被延长到了 7 处, 所以我们才不能在 6 和 7 之间使用一个 `&mut string2`.
 
-## 生命周期 Invariance
+## 生命周期 invariance
 
 回顾上面的 variance table, 我们知道 `&'a T` 对于 `T` 是 covariant, 但是 `&'a mut T` 对于 `T` 是 invariant. 用一个简单的例子证明一下:
 
