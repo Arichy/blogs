@@ -51,6 +51,7 @@ say(cat);
 ## Invariance
 
 invariance means you could neither place a `Child` at a `Parent` place, nor could you place a `Parent` at a `Child` place. If a place needs `Child`, you could only place a `Child` exactly.
+
 I didn't find invariance example in TypeScript, so I'll use a piece of code which could pass the TS compiler even if `strict: true` is enabled, but it will run into runtime error.
 
 ```TypeScript
@@ -69,7 +70,9 @@ cats.forEach(cat => {
 ```
 
 We passed a `cats: Cat[]` to `handle`, while `handle` expects it to be `Animal[]`, so it's absolute legal to insert a new `Animal` into it. However, `cats` does not know there is an `Animal` inside it. It still regards all the elements as `Cat`, resulting in the error.
+
 On the other hand, if `handle` expects the argument to be `Cat[]`, obviously we could not pass an `Animal[]`. We could only pass a type `T[]` if the place needs a `T[]`. This is called invariance, only the exactly same type is allowed.
+
 To emphasize again, this example code is only meant to illustrate a case that `T[]` is invariant in `T`. **In reality, TS does not handle it this way**. In TS, `T[]` is covariant in `T`.
 
 ## Data Flow Direction
@@ -99,7 +102,7 @@ The fundamental reason for variance is that the data flow direction of read and 
 
 The reason why TS allows the erroneous code above, is that TS has no mutability declaration. TS does not know what would `handle` do on `animals`. Readonly? Or write? If TS was very strict and assumed both read and write operations would be done, the argument would only be exactly `Animal[]`, which would lose much flexibility. So TS strikes a balance between strictness and flexibility and allows the code.
 
-On the contrary, it's compulsory to declare mutability in Rust, so the code above could not be compiled in Rust. That's the reason for many lifetime related errors as well.
+On the contrary, it's required to declare mutability in Rust, so the code above could not be compiled in Rust. That's the reason for many lifetime related errors as well.
 
 A simple summary:
 
@@ -160,7 +163,7 @@ fn main() {
 
 Now, forget about "`'a` is the shorter one of `x` and `y`". Let's understand it via variance. `'a` will be a specific type, instead of a "shorter one". I think a specific type is easier to understand than "shorter one", "at least", "at most".
 
-For convenience, I'll use `1~2` to represent a lifetime between position 1 and 2 in code.
+For convenience, I'll use `1~2` to represent the lifetime between position 1 and 2 in code.
 
 The code above is erroneous obviously, because the return value used at 8 could reference to `string2`, while `string2` is dropped at 7. Form the perspective of generic, `longest` function has a lifetime generic `'a` , takes an `x` with `'a`, a `y` with `'a`, and return a value with `'a`. So Rust will start generic inference based on the context:
 
@@ -468,6 +471,7 @@ Now, `'a` will be inferred to `2~2`. For the implicit `&'b mut list<'a>` at posi
 ## Method 2
 
 In method 1, we removed `mut`, resulting in the immutability of `Interface`. Now let's see how to keep `mut`.
+
 The root cause is that `&'a mut list<'a>` is invariant in `list<'a>` and the second `'a` will be inferred to `1~4`, forcing the first `'a` to be at least `1~4`. However, it's not necessary to connect the two lifetime. So we could decouple them by introducing a new generic lifetime `'b`. The expected inference result is `'a` is `1~4` while `'b` is `2~2` so that `'b` will not affect the further references to `list<'a>`.
 
 ```rust
@@ -519,9 +523,9 @@ impl<'b, 'a> Interface<'b, 'a> {
 
 Compiled successfully. Now `'b` is `2~2`, while `'a` is `1~4`. Perfect!
 
-## contravariance
+## Contravariance
 
-Lastly, let's have a look at contravariance quickly. It's mainly used in function type.
+Lastly, let's have a look at contravariance quickly. It's mainly used in function types.
 
 In TypeScript, `T` is covariant in `T`, but `(param: T)` is contravariant in `T`.
 
@@ -536,6 +540,7 @@ handleFn((items: Animal[]) => {
 ```
 
 The param of `handleFn` is a callback function: `(items: Cat[]) => void`, but we could pass `(items: Animal[]) => void` indeed. Because when `handleFn` is called, an `items` will be passed. The data flow is from `handleFn` to `callback`. `callback` will read the `items` by formal param. `callback` must assume it as a base type instead of a super type.
+
 But not the other way around. If `callback` expects `(items: Animal[]) => void` but it gets `(items: Cat[]) => void`, the `handleFn` may pass `Animal[]` and callback reads it as `Cat[]`, causing error.
 
 # Summary
