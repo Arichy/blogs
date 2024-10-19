@@ -55,6 +55,7 @@ say(cat);
 ## Invariance
 
 **Invariance (不变), 指的是对于类型 Parent 和 Child, 如果一个位置需要 Parent, 那么只能将 Parent 放上去, 不可以将 Child 放上去. 如果一个位置需要 Child, 那么只能将 Child 放上去, 不能将 Parent 放上去**
+
 因为我没有找到 TypeScript 中 invariance 的例子, 所以用一个不会报错的例子来说明. 请注意以下代码即使在 `strict: true` 的条件下也可以通过编译, 但是运行时会出现类型错误.
 
 ```TypeScript
@@ -73,7 +74,9 @@ cats.forEach(cat => {
 ```
 
 上述代码调用 `handle`时传入了 `Cat[]` , 但是 `handle` 期望接收的参数是 `Animal[]`, 于是直接往里面插入了一个 `Animal` . 此时 `Cat[]` 中混进了一个 `Animal`, 但是 `Cat[]` 并不知道, 依旧将所有元素当做 `Cat` 使用, 自然会出问题.
+
 但是反过来, 假设 `handle` 期望接收的参数是 `Cat[]`, 显而易见的, 我们也不能传 `Animal[]` 进去. 我们只能传一个类型完全为 `T[]` 的参数进去. 这种场景就叫做 invariance, 只能放完全相同的类型, 不能放父类型或者子类型.
+
 再次强调, 这段示例代码只是为了表达 `T[]` 对于 `T` 是 invariant, 但是实际上 TS 并没有这么处理, TS 的处理是 `T[]` 对于 `T` 是 covariant.
 
 ## 数据流向
@@ -97,6 +100,7 @@ some_animal.hello();
 ```
 
 从上述伪代码可以看出, **variance 的根本原因是读和写两种操作的数据流向是相反的**. 我们称需要的值(参数)为 `need`, 实际传入的值为 `real`, 在读操作下, 数据是从 `real` 流向 `need`, 所以需要 `real` 包含所有 `need` 包含的信息, 即 `real` 需要是 `need` 的子类型. 相反, 在写操作下, 数据是从 `need` 流向 `real`, 所以需要 `need` 包含所有 `real` 包含的信息, 即 `need` 需要是 `real` 的子类型.
+
 ![data flow](https://github.com/Arichy/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/data_flow.png?raw=true?raw=true)
 
 ## 可变性和写操作
@@ -113,7 +117,7 @@ TS 之所以允许上述 invariance 示例代码通过编译, 是因为 TS 没�
 
 接下来我们正式开始说明 variance 和生命周期之间的关系.
 
-## 生命周期中的 variance
+# 生命周期中的 variance
 
 Rust 中因为不存在继承, 所以各种普通的类型之间是没有父子关系的. 但是神奇的点是, Rust 的生命周期是有父子关系的. 如果一个生命周期 `'a` 完全包含了生命周期 `'b`, 那么 `'a` 就是 `'b` 的子类型. 所以生命周期和 variance 天然地被绑定在了一起.
 
@@ -172,7 +176,7 @@ fn main() {
 
 为了方便起见, 我会用 `1~2` 来表示代码中 1 和 2 这两个位置中间的这块生命周期.
 
-上述代码很明显会报错, 因为在 8 处使用的返回值有可能引用的 `string2`, 然而 `string2` 在 7 处就被销毁了. 从泛型的角度来看, `longest` 函数具有一个叫做 `'a` 的生命周期泛型参数, 他期望接收生命周期为 `'a` 的 `x`, 和生命周期为 `'a` 的 `y`, 并且返回一个生命周期为 `'a` 的 `&str` 类型的值. 于是 Rust 开始进行泛型推断, 基于调用时的上下文:
+上述代码很明显会报错, 因为在 8 处使用的返回值有可能引用的 `string2`, 然而 `string2` 在 7 处就被销毁了. 从泛型的角度来看, `longest` 函数具有一个叫做 `'a` 的生命周期泛型参数, 它期望接收生命周期为 `'a` 的 `x`, 和生命周期为 `'a` 的 `y`, 并且返回一个生命周期为 `'a` 的 `&str` 类型的值. 于是 Rust 开始进行泛型推断, 基于调用时的上下文:
 
 - `string1_ref` 的生命周期为 `2~9`, 并且最多可以被延长到 `2~10`
 - `&string2` 的生命周期为 `6~6`, 并且最多可以被延长到 `6~8`
@@ -477,6 +481,7 @@ fn use_list(list: &mut List) {
 ## 修复方式 2
 
 上述方式去掉了 `mut`, 失去了 `Interface` 的可变性. 接下来我们看看保留 `mut` 的方式.
+
 既然 `&'a mut List<'a>` 对于 `List<'a>` 是 invariant, 而 `List<'a>` 会被强制推断成 `List<1~4>`, 那我们就将第一个 `'a` 换成另一个生命周期泛型 `'b`, 将两者解除绑定. 预期结果是, `'a` 被推断成 `1~4`, `'b` 被推断成 `2~2`, 这样创建的临时匿名可变引用的生命周期就是 `2~2`, 不会影响到后续 4 处创建的不可变引用.
 
 ```rust
@@ -508,7 +513,9 @@ pub fn get_interface<'b>(&'b mut self) -> Interface<'a>
 ```
 
 请特别注意, `self.manager` 的生命周期和 `self.manager` 包含的生命周期是不一样的. 我们在函数内部创建并返回的 `&mut self.manager<'a>`, 这个可变引用的生命周期是 `'b`, 而不是 `'a`, 因为它来自参数 `&'b mut List<'a>`, 这个参数是一个带着 `'b` 生命周期的可变引用.
+
 ![complex_memory](https://github.com/Arichy/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/data_flow.png?raw=true?raw=true)
+
 编译器告诉我们需要添加 `'b: 'a`. 但是我们不能这么做. 一旦这么做了, `'b` 的生命周期就会至少变成 `1~4`, 又陷入之前同样的问题.
 根本原因在于返回的 `Interface` 中携带的 `manager` 引用的生命周期不应该为 `'a`, 而是应该为 `'b`, 所以我们需要更新 `Interface<'a>`, 将其自身引用的生命周期和引用目标的引用的生命周期分开:
 
@@ -545,6 +552,7 @@ handleFn((items: Animal[]) => {
 ```
 
 `handleFn` 的参数是一个函数: `(items: Cat[]) => void`, 但是实际上可以传入 `(items: Animal[]) => void`, 因为 `handleFn` 在调用这个函数的时候, 会传入 `items`, 数据流向是从 `handleFn` 流向 `callback`, `callback` 通过读取形参 `items`, 从而读取实参 `items`. `callback` 只能将其当做更 base 的类型去读, 才能保证不读取错误.
+
 反过来则不行. 假设 `callback` 期望的类型是 `(items: Animal[]) => void`, 实际传入的 `callback` 是 `(items: Cat[]) => void`, 那么会导致, `handleFn` 传入的是 `Animal[]`, 但是 `callback` 将其当做 `Cat[]` 来读, 发生错误.
 
 # 总结
