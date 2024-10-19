@@ -17,7 +17,8 @@ variance 一般可分为下面三类
 - `T` 对于 `T` 是 covariant
 - `T[]` 对于 `T` 是 covariant
 - `(item: T) => void` 对于 `T` 是 contravariant
-  请注意这非常重要, 说明了 variance 是一个类型与它内部的某一部分类型的关系.
+
+请注意这非常重要, 说明了 variance 是一个类型与它内部的某一部分类型的关系.
 
 由于 Rust 中没有继承, 绝大多数类型不存在父子关系, 接下来我会使用 TypeScript 举例子说明, 并且开启 `tsconfig.json` 中的 `strict`. **我会重点说明 covariance 和 invariance, 因为这两者对于理解生命周期至关重要. 最后我会简单介绍一下 contravariance**.
 
