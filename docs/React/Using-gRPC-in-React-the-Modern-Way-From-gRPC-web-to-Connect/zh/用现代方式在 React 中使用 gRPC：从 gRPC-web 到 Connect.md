@@ -500,7 +500,7 @@ option go_package = "example.com/go-connect-backend/gen;person";
 
 **Step 5**. 执行 `buf generate`, 会在 `go-connect-backend/gen` 目录下生成一个 `person.pb.go` 文件, 这个文件是将 proto 文件编译为 go 代码, 里面包含了 proto 文件定义的消息类型和序列化/反序列化的逻辑. 同时会在 `go-connect-backend/gen/personconnect` 目录下生成一个 `person.connect.go` 文件, 这个文件负责处理 connect 协议通信.
 
-然后按照教程写一个基本的服务就可以了, 要注意可能需要处理跨域. 服务启动之后, 在前端就可以通过 `createConnectTransport` 方法来使用 connect 协议与后端通信了. Connect 使用 HTTP/1.1 (当然, 也支持 HTTP/2) + JSON（或 protobuf）作为传输协议, 在浏览器中无需额外代理服务就能工作, 因此前端可直接请求后端.
+然后按照[教程](https://connectrpc.com/docs/go/getting-started)写一个基本的服务就可以了, 要注意可能需要处理跨域. 服务启动之后, 在前端就可以通过 `createConnectTransport` 方法来使用 connect 协议与后端通信了. Connect 使用 HTTP/1.1 (当然, 也支持 HTTP/2) + JSON（或 protobuf）作为传输协议, 在浏览器中无需额外代理服务就能工作, 因此前端可直接请求后端.
 
 # 5. 总结
 
