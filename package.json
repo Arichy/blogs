@@ -10,7 +10,8 @@
   "lint-staged": {
     "*.md": [
       "node scripts/replaceImageUrl.js",
-      "node scripts/entriesInReadMe.js"
+      "node scripts/entriesInReadMe.js",
+      "git add README.md"
     ]
   }
 }
