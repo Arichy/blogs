@@ -46,7 +46,8 @@ function traverseDir(dir) {
     const stat = fs.statSync(filepath);
     if (stat.isDirectory()) {
       traverseDir(filepath);
-    } else if (stat.isFile() && path.extname(filename) === '.md') {
+    } else if (stat.isFile() && path.extname(filename) === '.md' && !filename.startsWith('.')) {
+      // . means WIP
       // handle .md files
       const relativePath = path.relative(process.cwd(), filepath);
       const pathParts = relativePath.split(path.sep);
