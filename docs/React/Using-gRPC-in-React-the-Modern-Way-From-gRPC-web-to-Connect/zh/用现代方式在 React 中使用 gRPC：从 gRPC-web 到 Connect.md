@@ -470,7 +470,9 @@ export const personClient = createClient(PersonService, transport);
 文章开头说了, connect 是一个新的 rpc 框架, 兼容 gRPC, 但是更现代化, 同时也有自己的 connect 通信协议. 我们探索一下如何用 go 来实现一个 connect server. 这里我们使用 [connect-go](https://connectrpc.com/docs/go/getting-started), 按照教程安装好必要的工具后, 在项目根目录下新建一个 go 项目目录, 命名为 `go-connect-server`, 然后在里面执行:
 
 **Step 1**. `go mod init example.com/go-connect-server` 初始化 go 项目, 包名为 `example.com/go-connect-server`
+
 **Step 2**. `buf config init`, 会生成一个 `buf.yaml` 文件, 内容如下, 不用管它
+
 **Step 3**. 创建一个 `buf.gen.yaml` 文件, 内容如下:
 
 ```yaml
