@@ -471,9 +471,11 @@ The `@connectrpc/connect-web` library also has a method `createConnectTransport`
 
 As mentioned at the beginning of the article, Connect is a newer RPC framework, compatible with gRPC, but more modern, and also has its own Connect communication protocol. Let's explore how to implement a Connect server using Go. Here we use [connect-go](https://connectrpc.com/docs/go/getting-started). After installing the necessary tools according to the tutorial, create a new Go project directory named `go-connect-server` in the project root, and execute the following inside it:
 
-1. ` go mod init example.com/go-connect-server` Initialize the Go project with the package name `example.com/go-connect-server`.
-2. `buf config init`, which will generate a `buf.yaml` file; you can ignore its contents.
-3. Create a `buf.gen.yaml` file with the following content:
+**Step 1**: ` go mod init example.com/go-connect-server` Initialize the Go project with the package name `example.com/go-connect-server`.
+
+**Step 2**: `buf config init`, which will generate a `buf.yaml` file; you can ignore its contents.
+
+**Step 3**: Create a `buf.gen.yaml` file with the following content:
 
 ```yaml
 version: v2
@@ -490,7 +492,7 @@ plugins:
     opt: paths=source_relative
 ```
 
-4. Very importantly, modify the `person.proto` file by adding the following line:
+**Step 4**: Very importantly, modify the `person.proto` file by adding the following line:
 
 ```proto
 option go_package = "example.com/go-connect-backend/gen;person";
@@ -498,9 +500,9 @@ option go_package = "example.com/go-connect-backend/gen;person";
 
 `go_package` defines the package name where the generated Go code for this proto file resides. `example.com/go-connect-backend` is the Go project's module path, `gen` is the directory where the generated Go code files are located, and `person` is the package name.
 
-5.  Execute `buf generate`. This will generate a `person.pb.go` file in the `go-connect-backend/gen` directory, containing the Go code compiled from the proto file, including message types and serialization/deserialization logic. It will also generate a `person.connect.go` file in the `go-connect-backend/gen/personconnect` directory, which handles Connect protocol communication.
+**Step 5**: Execute `buf generate`. This will generate a `person.pb.go` file in the `go-connect-backend/gen` directory, containing the Go code compiled from the proto file, including message types and serialization/deserialization logic. It will also generate a `person.connect.go` file in the `go-connect-backend/gen/personconnect` directory, which handles Connect protocol communication.
 
-Then, follow the tutorial to write a basic service, **paying attention to potentially handling CORS**. After the service starts, the frontend can use the `createConnectTransport` method to communicate with the backend using the Connect protocol. Connect uses HTTP/1.1 (though it also supports HTTP/2) + JSON (or Protobuf) as the transport protocol, and works in the browser without needing an additional proxy service, allowing the frontend to directly request the backend.
+Then, follow the [tutorial](https://connectrpc.com/docs/go/getting-started) to write a basic service, **paying attention to potentially handling CORS**. After the service starts, the frontend can use the `createConnectTransport` method to communicate with the backend using the Connect protocol. Connect uses HTTP/1.1 (though it also supports HTTP/2) + JSON (or Protobuf) as the transport protocol, and works in the browser without needing an additional proxy service, allowing the frontend to directly request the backend.
 
 # 5. Summary
 
