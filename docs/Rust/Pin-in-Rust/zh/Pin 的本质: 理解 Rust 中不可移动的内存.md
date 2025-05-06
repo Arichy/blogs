@@ -110,7 +110,7 @@ pub struct Pin<Ptr> {
 pub auto trait Unpin {}
 ```
 
-`Pin` 是一个 struct, 内部会存储一个**指针类型** `Ptr`. 这里的指针类型指的是实现了 `Deref` trait 的类型, 比如 `Box`, `Rc`, `Arc`, `&T`, `&mut T` 等. 之所以内部存的是指针而不是直接存结构体 `T`, 是因为如果将 `T` 直接存入 `Pin` 中, 那么 `T` 和 `Pin` 会一起存在一起. 当 `Pin` 移动时, `T` 也会被带着一起移动. 但是如果 `Pin` 存的只是一个指针, `Pin` 带着指针移动就没问题了, 指针指向的 `T` 本身并没有移动.
+`Pin` 是一个 struct, 内部会存储一个**指针类型** `Ptr`. 这里的指针类型指的是实现了 `Deref` trait 的类型, 比如 `Box`, `Rc`, `Arc`, `&T`, `&mut T` 等. 之所以内部存的是指针而不是直接存结构体 `T`, 是因为如果将 `T` 直接存入 `Pin` 中, 那么 `T` 和 `Pin` 会被存在一起. 当 `Pin` 移动时, `T` 也会被带着一起移动. 但是如果 `Pin` 存的只是一个指针, `Pin` 带着指针移动就没问题了, 指针指向的 `T` 本身并没有移动.
 
 ![Bad move](https://github.com/Arichy/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/bad.png?raw=true)
 
@@ -138,11 +138,11 @@ struct SelfRef {
 
 `PhantomPinned` 是一个 `std::marker` 提供的一个 struct, 它在内部实现了 `!Unpin`, 所以 `SelfRef` 就不会自动实现 `Unpin` 了.
 
-`Pin<&mut T>` 或者 `Pin<Box<T>>` 的语意是, 要么保证 `T` 不会被移动, 要么 `T: Unpin`. 这一点很重要, 因为如果 `T: Unpin`, 说明 `T` 并不关心自己是否被移动了, 那么 `Pin<&mut T>` 就毫无意义, 失去了保护作用. 这一点在我们看 `Pin` 提供的方法时很有用.
+`Pin<&mut T>` 或者 `Pin<Box<T>>` 的语意是, 要么保证 `T` 不会被移动, 要么 `T: Unpin`. 这一点很重要, 因为如果 `T: Unpin`, 说明 `T` 并不关心自己是否被移动了, 那么 `Pin<&mut T>` 的保护作用就毫无意义. 这一点在我们看 `Pin` 提供的方法时很有用, 因为 `Pin` 对于 `T: Unpin` 提供了更高的权限.
 
 # Pin 的原理
 
-其实 `Pin` 的原理非常简单, 没有任何魔法. 想象一下, 假设现在完全不存在 `Pin`, 对于上面的 `SelfRef`, 我们希望让他不要被移动, 可以怎么做? 最简单的方法就是将其放到堆上, 然后将其包裹在另一个结构体例
+其实 `Pin` 的原理非常简单, 没有任何魔法. 想象一下, 假设现在完全不存在 `Pin`, 对于上面的 `SelfRef`, 我们希望让他不要被移动, 可以怎么做? 最简单的方法就是将其放到堆上, 然后将其包裹在另一个结构体里
 
 ```rust
 // crate 1
@@ -242,7 +242,7 @@ addr of b.v: 0x60000165d200, value of b.ptr 0x60000165d1e0, value of b.v: hello 
 
 可以看到在交换后, `a.ptr` 和 `b.ptr` 都指向了错误的地址. 预期是指向自己的 `v`, 但实际上指向了对方的 `v`.
 
-这就陷入了一个两难. 我们既要一种能获得 `&mut SelfRef` 的方法, 又要让用户不通过这个方法去移动 `SelfRef`. 目前 Rust 编译器无法判断用户拿到 `&mut T` 之后进行的操作是否会移动 `T`. 所以官方的 `Pin` 用了一个比较极端的方式: `unsafe fn`.
+这就陷入了一个两难. 我们既要一种能获得 `&mut SelfRef` 的方法, 又希望用户不通过这个方法去移动 `SelfRef`. 目前 Rust 编译器无法判断用户拿到 `&mut T` 之后进行的操作是否会移动 `T`. 所以官方的 `Pin` 用了一个比较极端的方式: `unsafe fn`.
 
 - 对于 `T: Unpin`, 直接通过实现 `DerefMut` 的方式提供 `&mut T`
 - 对于 `T: !Unpin`, 通过 `unsafe fn` 的方式提供 `&mut T`
@@ -313,7 +313,7 @@ unsafe {
 }
 ```
 
-这就形成了用户和编译器之间的约定: 我需要 `&mut T`, 但是拿到 `&mut T` 之后, 编译器无法阻止我移动 `T`. 所以我通过 `unsafe block` 来保证, 我不会移动 `T`. 我最多做一些比如 `a_mut.v.push_str("world");` 之类, 需要修改, 但是不会移动 `T` 的操作. 这就完全由用户承诺了, 这也是 `unsafe block` 设计的初衷.
+这就形成了用户和编译器之间的约定: 我需要 `&mut T`, 但是拿到 `&mut T` 之后, 编译器无法阻止我移动 `T`. 所以我通过 `unsafe block` 来保证, 我不会移动 `T`. 我最多做一些比如 `a_mut.v.push_str("world");` 之类, 需要修改, 但是不会移动 `T` 的操作. 这就完全由用户承诺了, 这也是 `unsafe block` 设计的初衷: 你有能力在 `unsafe block` 里做一些危险的操作, 但是你承诺永远不会这样做.
 
 # 总结
 
