@@ -9,6 +9,32 @@ JS, with its highly dynamic and flexible scripting language features, allows us 
 
 However, in the world of Rust, all the above details must be firmly kept in mind by the developer. This also leads to discomfort for JS/Python, and even Java/Go developers when learning Rust, requiring them to step far out of their comfort zones. No runtime helps us encapsulate and handle numerous low-level details anymore; only the compiler battles with us, repeatedly.
 
+# 0. Pronunciation
+
+Rust has its own unique naming conventions, some of which don't quite align with the conventions of other mainstream languages. For instance, the concept of an `interface` is called a `trait` in Rust. What's similar to a `package` in JS is called a `crate` in Rust. At the same time, Rust's design philosophy is to minimize source code characters as much as possible. Thus, function definitions use `fn`, not `func` like in Go, nor `function` like in JS; mutability uses `mut`, not the full `mutable`; implementing a trait uses `impl`, not the full `implement`; and strings include two types, `str` and `String`. So, to begin, let's introduce the common pronunciations within the Rust community.
+
+## Keywords/Syntax Elements
+
+| Symbol/Word | Pronunciation                     | Category      | Notes                            |
+| ----------- | --------------------------------- | ------------- | -------------------------------- |
+| `str`       | /stɜr/ (like “stir”)              | Type          | The `str` in `&str`, not “S-T-R” |
+| `impl`      | /ɪmpl/ (like “imp-l”)             | Keyword       | Abbreviation for implement       |
+| `dyn`       | /dɪn/ or /daɪn/ (both are used)   | Trait Keyword | Abbreviation for dynamic         |
+| `crate`     | /kreɪt/ (like “create” without e) | Module System | A package or module unit in Rust |
+| `trait`     | /treɪt/                           | Interface     |                                  |
+| `enum`      | /ˈiːnəm/ or /ˈɛnəm/               | Enum Type     |                                  |
+| `mod`       | /mɑd/ (like “mod”ify)             | Module        | Abbreviation for module          |
+| `mut`       | /mjut/ (like mute)                | Mutability    | Abbreviation for mutable         |
+| `fn`        | /ɛf ɛn/ (F-N)                     | Function      | Declares a function              |
+
+## Types/Structs
+
+| Name  | Pronunciation                        | Meaning                         |
+| ----- | ------------------------------------ | ------------------------------- |
+| `Vec` | /vɛk/ (like “veck”) or spelled V-E-C | Vector type                     |
+| `Rc`  | /ɑr si/ (R-C)                        | Reference Counted smart pointer |
+| `Arc` | /ɑrk/ (like “ark”)                   | Atomic Reference Counted        |
+
 # 1. Basic Content: `mut`
 
 For developers from most language backgrounds, `mut` is a very new and somewhat inexplicable design. When we write JS, we never consider whether a variable is mutable; by default, all variables are mutable. Even for a variable `some_obj` defined with `const`, it only means `some_obj` itself cannot be reassigned to another value, but the object `some_obj` refers to can be arbitrarily modified, such as adding/deleting/modifying fields.
