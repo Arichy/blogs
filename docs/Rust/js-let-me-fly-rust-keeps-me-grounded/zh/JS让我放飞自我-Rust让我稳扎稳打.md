@@ -9,7 +9,7 @@ JS 由于其高度动态灵活的脚本语言特性, 使得我们在写代码时
 
 但是在 Rust 的世界里, 上面所有的细节都需要开发者铭记于心, 时刻牢记. 这也导致 JS / Python, 甚至 Java / Go 开发者在学习 Rust 时会产生不适感, 需要从自己的舒适区走出来很远很远. 再也没有任何运行时帮助我们封装和处理大量的底层细节, 唯有编译器和我们斗智斗勇反复纠缠.
 
-# 基础内容: mut
+# 1. 基础内容: mut
 
 对于大部分语言背景的开发者来说, `mut` 是一个很新鲜并且莫名其妙的设计. 我们在写 JS 时从来不会考虑一个变量是不是可变的, 默认所有变量都是可变的. 即使是用 `const` 定义的变量 `some_obj`, 也仅仅是 `some_obj` 自己不能被赋给一个其他的值, 但是 `some_obj` 引用的对象自己是可以任意修改的, 比如新增/删除/修改字段.
 
@@ -18,7 +18,7 @@ JS 由于其高度动态灵活的脚本语言特性, 使得我们在写代码时
 1. Rust 的一个设计哲学是尽可能显示声明. 比如用 `mut` 显示声明一个变量是可变的, 那么没有用 `mut` 的变量就是不可变的, 当你看到这样的变量时, 在后续任何地方都不用担心它的值发生了变化, 减少了心智负担.
 2. Rust 的 Borrow Checker 有一条规则: **对于同一个值 T, 不能同时存在可变引用 &T 和不可变引用 &mut T**, 所以需要区分是否可变.
 
-# 进阶内容: hello world
+# 2. 进阶内容: hello world
 
 是的, 你没有看错, 打印 hello world 在 Rust 里就是进阶内容.
 
@@ -48,7 +48,7 @@ println!("hello world");
 
 看上去很简单, 但其中藏有至少四个微妙但重要的概念: 字符串, 生命周期, fat pointer, macro.
 
-## 字符串
+## 2.1. 字符串
 
 如果你将 "hello world" 抽离为一个变量, 在安装了 rust-analyzer (Rust 的 language server,后文简称 ra) 的编辑器中, 会提示你变量类型:
 
@@ -182,7 +182,7 @@ let then: Instant = now + duration_ms;
 
 FYI, JS 新的时间模块 [Temporal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) 也引入了 `Duration` 和 `Instant` 的区分.
 
-## macro
+## 2.2 Macro
 
 你一定会很好奇, 为什么有些"函数调用"后面有感叹号, 有些没有. 比如 `"hello".to_string()` 没有感叹号, 但是 `println!()`, `write!()` 有. 其实是因为这里的 `println`, `write` 并不是函数, 而是 declarative macro.
 
@@ -231,7 +231,7 @@ declarative macros 执行的是一个匹配, 所以名为 declarative, 声明式
 
 FYI, 可以用 `cargo install expand` 来装 [cargo-expand](https://github.com/dtolnay/cargo-expand) 这个工具, 装好之后就可以通过 `cargo expand` 命令来查看部分 macro 展开后的结果.
 
-# array vs vector
+# 3. Array vs Vec
 
 在 JS 里, 数组 Array 是我们用得最多的数据结构, 可能没有之一. 我们早已熟悉数组里的各种操作, 包括创建, 任意位置插入/删除元素等. 但是很可惜, Rust 中的数组类型为 `[T; N]`, 其中 `T` 是元素类型, `N` 是元素个数, 而**元素个数必须在编译时确定**. 这就相当难受了, 数组长度必须在编译时也就是写代码的时候就确定, 灵活性基本没有了, 这也导致数组类型的用途就很局限了, 甚至一个最基本的遍历打印的函数参数都不能是数组.
 
@@ -241,7 +241,7 @@ FYI, 可以用 `cargo install expand` 来装 [cargo-expand](https://github.com/d
 - `len`: vec 当前的长度, 也就是当前元素数量
 - `capacity`: vec 当前的容量
 
-前两个都比较容易理解, 就是这个 `capacity` 有点令人费解. 简单来说, `capacity` 是当前 vec 能容纳的最大袁术个数, `capacity` 一定 \>= `len`. 当 `capacity == len` 时, vec 就填满了. 此时如果再执行 `vec.push` 之类的方法插入元素, vec 就会先扩容, 也就是新分配一段 `capacity` 更大的内存 (一般来说是当前 `capacity` \* 2), 然后将自己现有的所有元素移动到新的位置, 然后再插入元素. 当然, 这个扩容有可能原地发生, 也就是说新分配的内存起点和当前内存起点一样, 此时所有元素就不需要移动. 所以严格来说, `push` 方法的时间复杂度并不一定为 `O(1)`, 在扩容发生时有可能为 `O(n)`.
+前两个都比较容易理解, 就是这个 `capacity` 有点令人费解. 简单来说, `capacity` 是当前 vec 能容纳的最大元素个数, `capacity` 一定 \>= `len`. 当 `capacity == len` 时, vec 就填满了. 此时如果再执行 `vec.push` 之类的方法插入元素, vec 就会先扩容, 也就是新分配一段 `capacity` 更大的内存 (一般来说是当前 `capacity` \* 2), 然后将自己现有的所有元素移动到新的位置, 然后再插入元素. 当然, 这个扩容有可能原地发生, 也就是说新分配的内存起点和当前内存起点一样, 此时所有元素就不需要移动. 所以严格来说, `push` 方法的时间复杂度并不一定为 `O(1)`, 在扩容发生时有可能为 `O(n)`.
 
 到这里, 我们可以解释 `对于同一个值 T, 不能同时存在可变引用 &T 和不可变引用 &mut T` 这条规则存在的原因了. 考虑以下代码:
 
@@ -256,7 +256,7 @@ println!("{:?}", *v_shared_ref); // ❌ 4. 使用 2 中创建的 shared referenc
 
 在 3 处, 一个不可变引用和一个可变引用同时存在了, 违反了规则, 导致的结果就是 3 中可能因为 vec 扩容, 整个 vec 被移动到了新分配的地址上, 而原来的 `v_shared_ref` 仍然指向旧的地址, 变为 dangling pointer, 在 4 中解引用发生 undefined behavior. 此时内存安全就被破坏了.
 
-# enum and pattern matching
+# 4. Enum and Pattern Matching
 
 `enum` 在 TS 里是一个不太好的设计, [有许多问题](https://www.google.com/search?q=don%27t+use+enum+in+typescript), 在实际开发中用得也不多, 所以也不受重视.
 
@@ -297,7 +297,7 @@ fn print_add_1(val: StringOrNumber) {
 
 enum 在 Rust 中无处不在.
 
-## 可能为空的值: Option\<T\>
+## 4.1. 可能为空的值: Option\<T\>
 
 Rust 中没有 `null`, 所以如果要表达一个可能有值也可能为空的变量 T, 就需要一个 enum: `Option<T>`.
 
@@ -344,7 +344,7 @@ match result {
 }
 ```
 
-## 错误处理: Result\<T, E\>
+## 4.2. 错误处理: Result\<T, E\>
 
 上面的 `divide` 函数, 我们也可以用 `Result<T, E>` 来作为返回值.
 
@@ -372,7 +372,7 @@ match result {
 
 `E` 本身没有限制, 可以为任意类型. 但是一般 `E` 都会是一个实现了 `Error` trait 的类型.
 
-## unwrap
+## 4.3. unwrap
 
 如果你觉得 `Option` 和 `Result` 太繁琐了, 我只是想单纯地读个文件内容, 还要写一堆 `match` 来处理结果, 那么 `unwrap` 会让你回到舒适区一段时间.
 
@@ -397,7 +397,7 @@ println!("{content}");
 
 在正式的生产环境, `unwrap` 只有在完全确定不会有问题的情况下才能使用, 简化代码.
 
-# trait
+# 5. Trait
 
 Rust 的另一个设计特点是不符合惯例的命名规则. 在其他语言里, 这个概念几乎都叫 `interface`, 但是 Rust 命名为 `trait`. 两者概念基本接近, 但是 trait 更加强大, 甚至可以说是整个 Rust 程序结构或者生态的基石. 在任何时候, 我们都需要围绕 trait 去思考问题, 这也是 JS 开发者会感到不适应的很大一个点. 在 JS 里, 当我们使用第三方库时, 我们基本只会关注其提供的函数/class/object, 然后直接调用已有的方法就好了. 但是在 Rust 里, 我们还需要关注 trait. 在使用第三方 crate 时, 很多时候甚至都只会使用 trait, 让我们自己的结构体实现其提供的 trait, 然后使用里面的功能.
 
@@ -456,7 +456,7 @@ println!("{c:?}"); // Coordinate { x: 1, y: 2 }
 
 从结果也可以看出, `Display` 打印的是给人类看的, `Debug` 打印的是给程序员看的.
 
-# 闭包 vs 函数
+# 6. 闭包 vs 函数
 
 闭包是 JS 里一个不是很被重视的概念. 我们定义函数的时候, 也很少去思考它是不是一个闭包. 闭包这个词在 JS 社区里出现得也不多. 但是在 Rust 里, 闭包是一个非常重要, 需要单独记忆的概念.
 
@@ -516,7 +516,7 @@ Rust 的闭包是一个实现了 `FnOnce/FnMut/Fn` trait 的结构体, 捕获的
 
 重点来了, Rust 的闭包是复杂类型, 所以 ra 会告诉你 `f` 的类型是 `impl Fn(i32) -> i32`, 说明 `f` 是一个实现了 `Fn` 的结构体, 但是具体的名字不知道. 因为 Rust 会给每一个闭包生成一个单独的结构体, 所以不可能有两个闭包类型相同, 即使它们的参数列表, 函数内部实现, 返回值一模一样.
 
-## 按引用捕获 vs 按所有权捕获
+## 6.1. 按引用捕获 vs 按所有权捕获
 
 Rust 可以捕获外部变量的引用, 也可以捕获外部变量的所有权.
 
@@ -559,18 +559,18 @@ println!("{s}"); // ❌ s 已经被移动到了 f 内部
 
 对于使用 `fn` 定义的普通函数, 它们有具体的类型: `fn(i32) -> i32`, 所以多个函数可能是同一个类型, 并且所有的普通函数都实现了 `FnOnce` + `FnMut` + `Fn`. 换句话说, 所有的普通函数都可以当做闭包使用.
 
-# 多线程和异步
+# 7. 多线程和异步
 
 由于多线程和异步本身难度非常大, 本文不会过多描述, 只会介绍一些最基本的概念.
 
 - 多线程: 通过 `thread` 里的方法启动多个线程
 - 异步: 类似于 JS 的 async/await
 
-## 多线程
+## 7.1. 多线程
 
 适用于计算密集型任务, 可以并行处理. 这一个点往往是 JS 开发者的盲区, 因为流行的 JS runtime 都是只对开发者提供单线程, 没有能力实现真正的并行.
 
-## 异步
+## 7.2. 异步
 
 适用于 IO 密集型任务, 可以并发处理. JS 开发者初次接触 Rust 的 async/await 时, 会感到熟悉又陌生. 熟悉的点是语法基本一样, 都是通过 async 定义一个异步函数, 然后通过 await 来等待一个异步函数返回, 只是 JS 里 await 放在异步调用前面, Rust 放在后面. 然而陌生的点就比较匪夷所思了:
 
