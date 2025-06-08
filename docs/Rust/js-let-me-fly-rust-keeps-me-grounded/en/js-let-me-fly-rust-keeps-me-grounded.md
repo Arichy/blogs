@@ -636,6 +636,241 @@ async fn main() {
 
 Tokio provides a complete asynchronous ecosystem, including a scheduler, event loop (I/O, timers, etc.), asynchronous methods (fs, net, channel, etc.), and other features. At this point, you should again have the feeling that the reason we write JS so comfortably is that these contents are provided by the underlying runtime. For example, macro/micro tasks in JS are essentially tokio's scheduler. Node.js's event loop also has a corresponding implementation in tokio.
 
+## 8. Forgetting Object-Oriented Programming
+
+**Rust is not an object-oriented language**, so when learning it, it's best to set aside an object-oriented mindset (of course, strictly speaking, JS isn't an object-oriented language either, as it lacks classes). Rust does not have classes or inheritance, but it does borrow some features from OOP. For example, it implements encapsulation using `struct` + `impl` + `pub` visibility control, and it achieves polymorphism through various means.
+
+### 8.1. The Essence of Method Calls
+
+In Rust, there are technically no methods; all methods are just regular functions.
+
+```rust
+let mut nums = vec![1, 2, 3];
+
+nums.push(4);
+// is essentially
+Vec::push(&mut nums, 4);
+```
+
+Essentially, every method call creates a reference to the instance (or passes the instance itself) based on the method's `self` type (`self`, `&self`, or `&mut self`), passes it as the first argument to the function, and then passes the remaining arguments. This understanding is very helpful when wrestling with lifetimes. Explicitly writing out `&mut xx` makes it clearer that a mutable reference is being created at that point, which aids in reasoning about its lifetime.
+
+### 8.2. Generics for Parametric Polymorphism
+
+Parametric polymorphism refers to a function's ability to perform the same operation on different types. Rust uses generics to achieve parametric polymorphism, performing **monomorphization** on generic functions at compile time. Monomorphization means that for every type that calls the generic function, a unique function specific to that type is generated.
+
+```rust
+fn get_first<T>(slice: &[T]) -> &T {
+    &slice[0]
+}
+
+let nums = vec![1, 2, 3];
+let strings = vec!["1".to_string(), "2".to_string(), "3".to_string()];
+
+let first_num = get_first(&nums);
+let first_string = get_first(&strings);
+```
+
+The code above will be monomorphized into two different functions:
+
+```rust
+fn get_first_i32(slice: &[i32]) -> &i32 {
+    &slice[0]
+}
+
+fn get_first_String(slice: &[String]) -> &String {
+    &slice[0]
+}
+
+let first_num = get_first_i32(&nums);
+let first_string = get_first_String(&strings);
+```
+
+As you can see, the calls for `&nums` and `&strings` invoke two different functions. The advantage of this is extreme performance with zero runtime overhead, as the compiler knows exactly which function to call at compile time. The disadvantage is that if many different types use this function, generating a function for each type can lead to a larger binary bundle size.
+
+Generics implement static dispatch because the specific function being called is known statically at compile time. This might be unfamiliar to JS programmers because TypeScript generics are erased at compile time, so no static dispatch occurs.
+
+### 8.3. Trait Objects for Subtype Polymorphism
+
+Subtype polymorphism means that an object of a subtype can be used as if it were of its parent type. When a method is called through a reference to the parent type, the method on the subtype is called preferentially. Since Rust has no classes and inheritance, there is no parent-child relationship. Instead, this relationship is between a type and a trait. If a function doesn't care about the concrete type of its parameter but only that it implements a certain trait, it can use a trait object.
+
+```rust
+    fn get_string(input: Box<dyn ToString>) -> String {
+        input.to_string()
+    }
+
+    let res1 = get_string(Box::new("123"));
+    let res2 = get_string(Box::new(456));
+```
+
+The `dyn ToString` above is a trait object, representing any type that implements the `ToString` trait. Since the concrete type is unknown, its size is also unknown. Rust requires every parameter/variable to have a concrete size, so it must be placed within a pointer type. The most common one is `Box`, or you can use a reference `&dyn ToString`. Inside the `get_string` function, the `input` has lost its concrete type, becoming a `Box<dyn ToString>` trait object instead. Therefore, you can only call methods from the `ToString` trait, such as `to_string`.
+
+The requirement above can also be met with generics, but some scenarios exclusively require trait objects. A classic example is collection types like arrays, slices, or `Vec`:
+
+```rust
+fn get_strings<T: ToString>(input: &[Box<T>]) -> Vec<String> {
+    let mut vec = vec![];
+    for item in input {
+        vec.push(item.to_string());
+    }
+
+    vec
+}
+
+let res = get_strings(&[Box::new("123"), Box::new(456)]);
+```
+
+The code above will produce an error:
+
+```
+error[E0308]: mismatched types
+  --> src/main.rs:99:46
+   |
+99 |     let res = get_strings(&[Box::new("123"), Box::new(456)]);
+   |                                              ^^^^^^^^^^ expected `&str`, found integer
+   |
+   = note: expected type `Box<&str>`
+              found type `Box<{integer}>`
+```
+
+This is because all elements in a collection type must have the exact same type, but `Box<&str>` and `Box<i32>` are clearly different types and cannot be placed in the same slice. This is where trait objects become necessary:
+
+```rust
+fn get_strings(input: &[Box<dyn ToString>]) -> Vec<String> {
+    let mut vec = vec![];
+    for item in input {
+        vec.push(item.to_string());
+    }
+
+    vec
+}
+
+let res = get_strings(&[Box::new("123"), Box::new(456)]);
+```
+
+Now, the element type of this slice is `Box<dyn ToString>`, which is a single, consistent type. This scenario becomes even more apparent with closures, as each closure has a unique, unnameable type. If you want to store them in a collection, you must use a trait object, such as `Box<dyn Fn(i32, i32) -> i32>`.
+
+Trait objects implement dynamic dispatch because the concrete function for `item.to_string` is not known at compile time. At compile time, a structure called a vtable is created and placed in a read-only data segment (like the `.rodata` section). Then, at runtime, this vtable is used to find the actual function to call and execute it. The process is as follows:
+
+```rust
+trait Animal {
+    fn speak(&self) -> String;
+    fn number_of_legs(&self) -> u8;
+}
+
+struct Dog;
+impl Animal for Dog {
+    fn speak(&self) -> String { "Woof!".to_string() }
+    fn number_of_legs(&self) -> u8 { 4 }
+}
+
+struct Cat;
+impl Animal for Cat {
+    fn speak(&self) -> String { "Meow!".to_string() }
+    fn number_of_legs(&self) -> u8 { 4 }
+}
+
+fn main() {
+    // This conversion is the key moment that triggers the creation and use of the vtable!
+    let dog_animal: Box<dyn Animal> = Box::new(Dog);
+}
+```
+
+#### 1. Static Construction at Compile Time
+
+When the compiler processes the line `let dog_animal: Box<dyn Animal> = Box::new(Dog);`, it performs the following series of operations:
+
+**1.1. Identify the `trait-type` Combination**
+The compiler recognizes a conversion from the concrete type `Dog` to the trait object `dyn Animal`. It locks onto this combination: (`Dog`, `dyn Animal`).
+
+**1.2. Find and Analyze the Trait and `impl`**
+The compiler looks at the `Animal` trait definition. It knows that any `dyn Animal` must be able to call the `speak` and `number_of_legs` methods.
+
+**1.3. Construct the Vtable's Memory Layout**
+The compiler determines the structure of the vtable for the `dyn Animal` trait object. It is essentially an array (or struct) of function pointers, with a layout roughly like this:
+
+```c
+// This is pseudo-code describing the internal structure of the vtable
+struct VTableForAnimal {
+    // 1. Pointer to the destructor (for correctly dropping the object)
+    void (*_drop_in_place)(void*);
+
+    // 2. The object's size and alignment
+    size_t size;
+    size_t align;
+
+    // 3. Function pointers to each method in the Trait
+    String (*speak)(void*); // Points to Dog::speak
+    u8 (*number_of_legs)(void*); // Points to Dog::number_of_legs
+}
+```
+
+Note that the vtable contains not only pointers to trait methods but also three important pieces of metadata: a destructor pointer, size, and alignment. This enables `Box<dyn Animal>` to know how to correctly free the memory of the "type-erased" object it points to.
+
+**1.4. Create and Store a Static Vtable Instance**
+The compiler creates a global, static, read-only vtable instance for the (`Dog`, `dyn Animal`) combination. This vtable instance is placed in the read-only data section (e.g., the `.rodata` section) of the final executable file. It looks something like this:
+
+```c
+// Pseudo-code: The compiler generates such a constant in the .rodata section
+const VTableForAnimal VTABLE_DOG_AS_ANIMAL = {
+    .drop_in_place = &drop_dog,      // Points to Dog's destructor logic
+    .size = size_of::<Dog>(),        // The size of the Dog type (which is 0 here)
+    .align = align_of::<Dog>(),      // The alignment of the Dog type
+    .speak = &Dog::speak,            // Points to the machine code address of the Dog::speak function
+    .number_of_legs = &Dog::number_of_legs // Points to the machine code address of the Dog::number_of_legs function
+};
+```
+
+- This vtable is not created for each `Dog` object. Instead, all `Dog` types share the same single vtable instance when used as a `dyn Animal`.
+- Similarly, the compiler would create another separate, static vtable for the (`Cat`, `dyn Animal`) combination: `VTABLE_CAT_AS_ANIMAL`.
+
+#### 2. Pointer Combination at Runtime
+
+After all the above preparations are completed at compile time, what happens at runtime becomes very simple.
+
+When the line `let dog_animal: Box<dyn Animal> = Box::new(Dog);` is executed at runtime:
+
+**2.1.** `Box::new(Dog)` allocates memory on the heap to store a `Dog` instance.
+
+**2.2.** During the `Dog -> dyn Animal` conversion, a **fat pointer** is created.
+
+**2.3.** This fat pointer consists of two parts:
+_ **Data Pointer** -> Points to the address of the `Dog` instance on the heap.
+_ **Vtable Pointer** -> Points to the address of the `VTABLE_DOG_AS_ANIMAL` that the compiler created and stored in the read-only data section.
+
+```
+    STACK                                      HEAP                                     .RODATA (Read-Only Data)
++------------------------+                     +-----------------+                    +============================+
+| dog_animal             |                     | Dog Instance    |                    | VTABLE_DOG_AS_ANIMAL       |
+| (Box<dyn Animal>)      |                     | (on the heap)   |                    | (static, read-only)        |
+| +--------------------+ |                     +-----------------+                    |----------------------------|
+| | data_ptr      | ---|---------------------->| (Dog's fields)  |                    | drop_ptr      | ---------> | (drop code for Dog)
+| +--------------------+ |                                                            | size          | (e.g. 0)   |
+| | vtable_ptr    | ---|------------------------------------------------------------->| align         | (e.g. 1)   |
+| +--------------------+ |                                                            | speak_ptr     | ---------> | Dog::speak() code
++------------------------+                                                            | num_legs_ptr  | ---------> | Dog::number_of_legs() code
+                                                                                    +============================+
+                                                                                    | VTABLE_CAT_AS_ANIMAL       |
+                                                                                    | (another static vtable)    |
+                                                                                    | ...                        |
+                                                                                    +============================+
+```
+
+When `dog_animal.speak()` is called:
+
+**2.4.** The runtime follows the `vtable_ptr` from `dog_animal` to find `VTABLE_DOG_AS_ANIMAL`.
+
+**2.5.** It looks up the function pointer corresponding to `speak_ptr` within the vtable.
+
+**2.6.** It follows the `data_ptr` from `dog_animal` to find the address of the `Dog` instance and passes it as the `&self` argument.
+
+**2.7.** It calls the function pointed to by the function pointer, which is `Dog::speak(&dog_instance)`.
+
+### 8.4. Traits for Ad-Hoc Polymorphism
+
+Ad-hoc polymorphism refers to the ability of a single operation to execute different logic depending on the types of its operands. This is different from parametric polymorphism, where the same operation is performed on different types. In ad-hoc polymorphism, different operations are performed on different types. The most typical example is function overloading, but Rust does not support function overloading.
+
+Rust achieves ad-hoc polymorphism through traits. You can implement the same trait for different types, but with different specific implementations.
+
 # Summary
 
 From the flexibility and freedom of JS to the rigor and restraint of Rust, learning Rust is like transitioning from "doing whatever you want" to "walking on thin ice." JS runtimes shield us from low-level details like memory management and concurrency safety, allowing us to focus on rapidly implementing features. Rust, however, requires developers to confront these challenges directly, ensuring code safety and performance through strict compile-time checks.

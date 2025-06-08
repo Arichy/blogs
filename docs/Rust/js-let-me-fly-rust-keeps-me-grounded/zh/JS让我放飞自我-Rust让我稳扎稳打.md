@@ -626,6 +626,236 @@ async fn main() {
 
 tokio 会提供一个完整的异步生态, 包括 scheduler, event loop (IO, timers, etc), 异步方法 (fs, net, channel, etc) 等功能. 此时你应该又有了这个感觉, 我们之所以写 JS 写得这么爽, 是因为这些内容都被底层的 runtime 提供了. 比如 JS 里的 macro/micro task, 其实就是 tokio 里的 scheduler. Node.js 的 event loop, 其实 tokio 里也有对应的实现.
 
+## 8. 忘掉面向对象
+
+**Rust 不是一个面向对象的语言**, 所以在学习的时候最好抛弃掉面向对象的思维 (当然, 其实 JS 严格来说也不是面向对象的语言, 因为没有 class). Rust 没有类和继承, 但是借鉴了 OOP 里的一些特性, 比如用 struct + impl + pub 可见性控制实现了封装, 通过多种方式实现了多态.
+
+### 8.1. 方法调用的本质
+
+Rust 里其实没有方法, 所有的方法都是普通的函数.
+
+```rust
+let mut nums = vec![1, 2, 3];
+
+nums.push(4);
+// 本质上是
+Vec::push(&mut nums, 4);
+```
+
+所有的方法调用本质上都是根据方法的 self 类型 (self, &self, &mut self) 来创建一个引用(或者直接把自己)传给函数, 然后再传剩余参数. 这一点在和生命周期搏斗时很有帮助, 显式写出一个 `&mut xx` 会更明显看到在这里创建了一个 mutable reference, 然后去推理生命周期.
+
+### 8.2. 泛型实现参数多态
+
+参数多态指的是一个函数可以对不同的类型做出相同的处理. Rust 使用的泛型来实现参数多态, 在编译时会对泛型函数做**单态化**. 单态化的意思就是, 会对每一个调用这个函数的类型, 生成一个这个类型对应的唯一的函数.
+
+```rust
+fn get_first<T>(slice: &[T]) -> &T {
+    &slice[0]
+}
+
+let nums = vec![1, 2, 3];
+let strings = vec!["1".to_string(), "2".to_string(), "3".to_string()];
+
+let first_num = get_first(&nums);
+let first_string = get_first(&strings);
+```
+
+上面代码会将 `get_first` 单态化为两个不同的函数:
+
+```rust
+fn get_first_i32(slice: &[i32]) -> &i32 {
+    &slice[0]
+}
+
+fn get_first_String(slice: &[String]) -> &String {
+    &slice[0]
+}
+
+let first_num = get_first_i32(&nums);
+let first_string = get_first_String(&strings);
+```
+
+可以看到, 对 `&nums` 和对 `&strings` 调用的是两个不同的函数. 这么做的好处是极致的性能, 没有任何运行时开销, 编译期就可以知道调用的是哪个函数. 坏处是如果有很多类型都用了这个函数, 那么为每个类型都生成一个函数, 会导致 binary bundle size 变大.
+
+泛型实现了 static dispatch, 因为在编译时就能静态知道调用的哪个函数. 这点对于 JS 程序员来说比较陌生, 因为 TS 的泛型在编译时会被直接擦除, 不存在 static dispatch.
+
+### 8.3. trait object 实现子类型多态
+
+子类型多态指的是, 一个子类型的对象可以被当父类型使用. 此时通过父类型的引用调用方法, 会优先调用子类型上的方法. 而由于 Rust 没有类和继承, 不存在父子关系, 所以这里的父子关系变为了 type 和 trait 的关系. 如果一个函数不关心自己的参数的具体类型, 只关注他实现了什么 trait, 那么就可以用 trait object
+
+```rust
+    fn get_string(input: Box<dyn ToString>) -> String {
+        input.to_string()
+    }
+
+    let res1 = get_string(Box::new("123"));
+    let res2 = get_string(Box::new(456));
+```
+
+上面的 `dyn ToString` 就是一个 trait object, 表示任意实现了 `ToString` 的类型. 由于不知道具体的类型, 当然也没法知道具体的大小. Rust 要求每个参数/变量都得有具体的大小, 所以需要放到一个指针类型里, 最常用的就是 `Box`, 或者直接用一个引用 `&dyn ToString`. 此时在 `get_string` 函数里, `input` 失去了具体的类型, 取而代之的是一个 `Box<dyn ToString>` 的 trait object, 所以只能调用 `ToString` 里的方法, 也就是 `to_string`.
+
+上面的需求用泛型也可实现, 但是有些场景只能用 trait object, 典型的例子就是数组/slice/Vec 等集合类型:
+
+```rust
+fn get_strings<T: ToString>(input: &[Box<T>]) -> Vec<String> {
+    let mut vec = vec![];
+    for item in input {
+        vec.push(item.to_string());
+    }
+
+    vec
+}
+
+let res = get_strings(&[Box::new("123"), Box::new(456)]);
+```
+
+上面代码会报错:
+
+```rust
+99  |     let res = get_strings(&[Box::new("123"), Box::new(456)]);
+    |                                              -------- ^^^ expected `&str`, found integer
+    |                                              |
+    |                                              arguments to this function are incorrect
+```
+
+因为一个集合类型里面的元素类型必须完全相同, 但是 `Box<&str>` 和 `Box<i32>` 显然是不同的, 没有办法装到一个 slice 里. 这时候就只能用 trait object 了:
+
+```rust
+fn get_strings(input: &[Box<dyn ToString>]) -> Vec<String> {
+    let mut vec = vec![];
+    for item in input {
+        vec.push(item.to_string());
+    }
+
+    vec
+}
+
+let res = get_strings(&[Box::new("123"), Box::new(456)]);
+```
+
+此时这个 slice 的元素类型为 `Box<dyn ToString>`, 是同一个类型. 这个场景遇到闭包会更加明显, 因为每个闭包的类型都是不同的, 如果要放到一个集合里就只能用 trait object, 比如 `Box<dyn Fn(i32, i32) -> i32>`.
+
+trait object 实现了 dynamic dispatch, 因为在编译时并不知道 `item.to_string` 具体是哪个函数. 在编译时会创建一个叫 vtable 的结构, 放在制度数据段 (比如 .rodata section). 然后在运行时去根据 vtable 找到真正调用的函数, 执行调用. 具体流程如下:
+
+```rust
+trait Animal {
+    fn speak(&self) -> String;
+    fn number_of_legs(&self) -> u8;
+}
+
+struct Dog;
+impl Animal for Dog {
+    fn speak(&self) -> String { "Woof!".to_string() }
+    fn number_of_legs(&self) -> u8 { 4 }
+}
+
+struct Cat;
+impl Animal for Cat {
+    fn speak(&self) -> String { "Meow!".to_string() }
+    fn number_of_legs(&self) -> u8 { 4 }
+}
+
+fn main() {
+    // 这个转换就是触发 vtable 创建和使用的关键时刻！
+    let dog_animal: Box<dyn Animal> = Box::new(Dog);
+}
+```
+
+1.  编译时的静态构建
+
+    当编译器处理 let dog_animal: Box<dyn Animal> = Box::new(Dog); 这行代码时，它会执行以下一系列操作：
+
+    1.1. 识别出 `trait-type` 组合. 编译器识别出这里有一个从具体类型 Dog 到 Trait 对象 dyn Animal 的转换。它锁定了这个组合：(Dog, dyn Animal).
+
+    1.2. 查找并分析 trait 和 impl. 编译器查看 `Animal` trait 的定义, 它知道任何 `dyn Animal` 都需要能调用 `speak` 和 `number_of_legs` 这两个方法.
+
+    1.3. 构建 Vtable 的内存布局
+
+    编译器为 dyn Animal 这个 Trait 对象确定了 vtable 的结构。它本质上是一个函数指针数组（或者说结构体），其布局大致如下：
+
+    ```c
+    // 这是一个伪代码，描述 vtable 的内部结构
+    struct VTableForAnimal {
+    // 1. 指向析构函数的指针 (用于正确地 drop 对象)
+        void (_drop_in_place)(void_);
+
+            // 2. 对象的大小 (size) 和对齐 (alignment)
+            size_t size;
+            size_t align;
+
+            // 3. 指向 Trait 中各个方法的函数指针
+            String (*speak)(void*); // 指向 Dog::speak
+            u8 (*number_of_legs)(void*); // 指向 Dog::number_of_legs
+    }
+    ```
+
+    注意 vtable 不仅包含 trait 方法的指针, 还包含三个重要的元数据: 析构函数指针, 大小和对齐方式. 这使得 `Box<dyn Animal>` 知道如何正确地释放它所指向的, 类型被“擦除”的对象的内存.
+
+    1.4. 创建并存储静态 Vtable 实例
+    编译器会为 (Dog, dyn Animal) 这个组合创建一个全局的, 静态的, 只读的 vtable 实例. 这个 vtable 实例会被放置在最终生成的可执行文件的只读数据段(比如 .rodata section)中. 它看起来就像这样:
+
+    ```c
+    C
+
+    // 伪代码：编译器在 .rodata 段中生成了这样一个常量
+    const VTableForAnimal VTABLE_DOG_AS_ANIMAL = {
+        .drop_in_place = &drop_dog,      // 指向 Dog 的析构逻辑
+        .size = size_of::<Dog>(),        // Dog 类型的大小 (在这是 0)
+        .align = align_of::<Dog>(),      // Dog 类型的对齐
+        .speak = &Dog::speak,            // 指向 Dog::speak 函数的机器码地址
+        .number_of_legs = &Dog::number_of_legs // 指向 Dog::number_of_legs 的机器码地址
+    };
+    ```
+
+    - 这个 vtable 不是每个 Dog 对象都有一份，而是所有 Dog 类型在被当作 dyn Animal 使用时，共享同一个 vtable 实例。
+
+    - 同理，编译器也会为 (Cat, dyn Animal) 组合创建另一个独立的、静态的 vtable：VTABLE_CAT_AS_ANIMAL。
+
+2.  运行时的指针组合
+
+    在编译期完成了上述所有准备工作后, 运行时的事情就变得非常简单了.
+
+    当`let dog_animal: Box<dyn Animal> = Box::new(Dog);` 这行代码在运行时执行时:
+
+    2.1. `Box::new(Dog)` 在堆上分配内存来存放一个 `Dog` 实例.
+
+    2.2. 在进行 `Dog -> dyn Animal` 的转换时, 一个胖指针（fat pointer）被创建出来.
+
+    2.3. 这个胖指针包含两个部分: 数据指针 -> 堆上那个 `Dog` 地址; vtable 指针 -> 指向编译器在编译期创建好的, 存储在只读数据段里的 `VTABLE_DOG_AS_ANIMAL` 的地址.
+
+    ```
+        STACK (栈)                                  HEAP (堆)                             .RODATA (只读数据段)
+    +------------------------+                     +-----------------+                    +============================+
+    | dog_animal             |                     | Dog Instance    |                    | VTABLE_DOG_AS_ANIMAL       |
+    | (Box<dyn Animal>)      |                     | (on the heap)   |                    | (static, read-only)        |
+    | +--------------------+ |                     +-----------------+                    |----------------------------|
+    | | data_ptr      | ---|---------------------->| (Dog's fields)  |                    | drop_ptr      | ---------> | (drop code for Dog)
+    | +--------------------+ |                                                            | size          | (e.g. 0)   |
+    | | vtable_ptr    | ---|------------------------------------------------------------->| align         | (e.g. 1)   |
+    | +--------------------+ |                                                            | speak_ptr     | ---------> | Dog::speak() code
+    +------------------------+                                                            | num_legs_ptr  | ---------> | Dog::number_of_legs() code
+                                                                                        +============================+
+                                                                                        | VTABLE_CAT_AS_ANIMAL       |
+                                                                                        | (another static vtable)    |
+                                                                                        | ...                        |
+                                                                                        +============================+
+    ```
+
+    当调用 `dog_animal.speak()` 时:
+
+    2.4. 通过 `dog_animal` 的 `vtable_ptr` 找到 `VTABLE_DOG_AS_ANIMAL`.
+
+    2.5. 在 vtable 里查找 `speak_ptr` 对应的函数指针
+
+    2.6. 通过 `dog_animal` 的 `data_ptr` 找到 `Dog` 实例的地址, 并将其作为 `&self` 参数
+
+    2.7. 调用该函数指针指向的函数, 即 `Dog::speak(&dog_instance)`.
+
+### 8.4 trait 实现特设多态
+
+特设多态指的是同一个操作, 根据操作数的不同类型, 执行不同的逻辑. 这一点和参数多态有区别, 参数多态是对不同的类型做相同的操作, 而特设多态是对不同的类型做不同的操作, 最典型的例子就是函数重载. 但是 Rust 不支持函数重载.
+Rust 通过 trait 实现了特设多态. 给不同的类型实现同一个 trait, 但是具体的实现不同.
+
 # 总结
 
 从 JS 的灵活自由到 Rust 的严谨克制，学习 Rust 的过程就像是从“随心所欲”过渡到“如履薄冰”。JS 的运行时为我们屏蔽了内存管理、并发安全等底层细节，让我们可以专注于快速实现功能；而 Rust 则要求开发者直面这些挑战，通过严格的编译期检查来确保代码的安全性和性能。
