@@ -636,11 +636,11 @@ async fn main() {
 
 Tokio provides a complete asynchronous ecosystem, including a scheduler, event loop (I/O, timers, etc.), asynchronous methods (fs, net, channel, etc.), and other features. At this point, you should again have the feeling that the reason we write JS so comfortably is that these contents are provided by the underlying runtime. For example, macro/micro tasks in JS are essentially tokio's scheduler. Node.js's event loop also has a corresponding implementation in tokio.
 
-## 8. Forgetting Object-Oriented Programming
+# 8. Forgetting Object-Oriented Programming
 
 **Rust is not an object-oriented language**, so when learning it, it's best to set aside an object-oriented mindset (of course, strictly speaking, JS isn't an object-oriented language either, as it lacks classes). Rust does not have classes or inheritance, but it does borrow some features from OOP. For example, it implements encapsulation using `struct` + `impl` + `pub` visibility control, and it achieves polymorphism through various means.
 
-### 8.1. The Essence of Method Calls
+## 8.1. The Essence of Method Calls
 
 In Rust, there are technically no methods; all methods are just regular functions.
 
@@ -654,7 +654,7 @@ Vec::push(&mut nums, 4);
 
 Essentially, every method call creates a reference to the instance (or passes the instance itself) based on the method's `self` type (`self`, `&self`, or `&mut self`), passes it as the first argument to the function, and then passes the remaining arguments. This understanding is very helpful when wrestling with lifetimes. Explicitly writing out `&mut xx` makes it clearer that a mutable reference is being created at that point, which aids in reasoning about its lifetime.
 
-### 8.2. Generics for Parametric Polymorphism
+## 8.2. Generics for Parametric Polymorphism
 
 Parametric polymorphism refers to a function's ability to perform the same operation on different types. Rust uses generics to achieve parametric polymorphism, performing **monomorphization** on generic functions at compile time. Monomorphization means that for every type that calls the generic function, a unique function specific to that type is generated.
 
@@ -689,7 +689,7 @@ As you can see, the calls for `&nums` and `&strings` invoke two different functi
 
 Generics implement static dispatch because the specific function being called is known statically at compile time. This might be unfamiliar to JS programmers because TypeScript generics are erased at compile time, so no static dispatch occurs.
 
-### 8.3. Trait Objects for Subtype Polymorphism
+## 8.3. Trait Objects for Subtype Polymorphism
 
 Subtype polymorphism means that an object of a subtype can be used as if it were of its parent type. When a method is called through a reference to the parent type, the method on the subtype is called preferentially. Since Rust has no classes and inheritance, there is no parent-child relationship. Instead, this relationship is between a type and a trait. If a function doesn't care about the concrete type of its parameter but only that it implements a certain trait, it can use a trait object.
 
@@ -775,7 +775,7 @@ fn main() {
 }
 ```
 
-#### 1. Static Construction at Compile Time
+### 1. Static Construction at Compile Time
 
 When the compiler processes the line `let dog_animal: Box<dyn Animal> = Box::new(Dog);`, it performs the following series of operations:
 
@@ -823,7 +823,7 @@ const VTableForAnimal VTABLE_DOG_AS_ANIMAL = {
 - This vtable is not created for each `Dog` object. Instead, all `Dog` types share the same single vtable instance when used as a `dyn Animal`.
 - Similarly, the compiler would create another separate, static vtable for the (`Cat`, `dyn Animal`) combination: `VTABLE_CAT_AS_ANIMAL`.
 
-#### 2. Pointer Combination at Runtime
+### 2. Pointer Combination at Runtime
 
 After all the above preparations are completed at compile time, what happens at runtime becomes very simple.
 
@@ -865,7 +865,7 @@ When `dog_animal.speak()` is called:
 
 **2.7.** It calls the function pointed to by the function pointer, which is `Dog::speak(&dog_instance)`.
 
-### 8.4. Traits for Ad-Hoc Polymorphism
+## 8.4. Traits for Ad-Hoc Polymorphism
 
 Ad-hoc polymorphism refers to the ability of a single operation to execute different logic depending on the types of its operands. This is different from parametric polymorphism, where the same operation is performed on different types. In ad-hoc polymorphism, different operations are performed on different types. The most typical example is function overloading, but Rust does not support function overloading.
 
