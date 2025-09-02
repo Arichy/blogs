@@ -41,18 +41,18 @@ The operations on a Red-Black Tree are relatively complex. Rote memorization is 
 
 Since Red-Black Tree operations involve multiple relative nodes, we'll use the following letters to denote relationships:
 
--   N: New node
--   P: Parent node of N
--   G: Grandparent node (P's parent)
--   S: Sibling node of P
--   U: Uncle node (P's sibling)
--   FN: Far Nephew node (the child of U that is farther from N)
--   NN: Near Nephew node (the child of U that is closer to N)
+- N: New node
+- P: Parent node of N
+- G: Grandparent node (P's parent)
+- S: Sibling node of P
+- U: Uncle node (P's sibling)
+- FN: Far Nephew node (the child of U that is farther from N)
+- NN: Near Nephew node (the child of U that is closer to N)
 
 Red-Black Trees have two fundamental operations:
 
--   Recoloring
--   Rotation
+- Recoloring
+- Rotation
 
 For each operation, we need to focus on its impact, specifically on rules 4 and 5.
 
@@ -60,7 +60,7 @@ For each operation, we need to focus on its impact, specifically on rules 4 and 
 
 Recoloring means changing a node's color to a specific color. **Recoloring affects 2 paths**.
 
-![recolor N black](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-1.png?raw=true)
+<img alt="recolor N black" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-1.png?raw=true">
 
 A few notes about the diagrams in this article:
 
@@ -73,10 +73,10 @@ The diagram above shows that after N changes from red to black, the black-path f
 
 Rotations are divided into left and right rotations:
 
--   A left rotation on a node promotes its right child to its position, making itself the left child of the former right child. The former right child's left child becomes the new right child of the original node.
--   A right rotation on a node promotes its left child to its position, making itself the right child of the former left child. The former left child's right child becomes the new left child of the original node.
+- A left rotation on a node promotes its right child to its position, making itself the left child of the former right child. The former right child's left child becomes the new right child of the original node.
+- A right rotation on a node promotes its left child to its position, making itself the right child of the former left child. The former left child's right child becomes the new left child of the original node.
 
-![rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-2.png?raw=true)
+<img alt="rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-2.png?raw=true">
 
 Only a node with a real left child can be right-rotated, and only a node with a real right child can be left-rotated.
 
@@ -116,23 +116,27 @@ This is the easiest case to solve. Simply change U to black. This solves both pr
 ### 4.2.2 U is Black
 
 In this case, we can't solve it with just recoloring; any change will break the balance. So, rotation is needed. We need to consider the alignment of N-P-G. If they form a straight line, it's a simpler case.
-![U is black](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true)
+
+<img alt="U is black" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true" width="40%">
 
 How should we rotate? We can use a process of elimination.
 
--   N cannot necessarily be rotated, as it might not have children (e.g., when just inserted).
--   Similarly, U might not have a right child and thus cannot be rotated.
--   P could be right-rotated, bringing N up and P down. If N then becomes black, the black-height of path `a` increases by 1, breaking the balance. To compensate, if we make G red, the left side of G is balanced, but the right side (the G-U path) has its black-height reduced by 1, still unbalanced. So this is not a viable solution.
--   This leaves only rotating G as a meaningful option. G cannot be left-rotated because U is not necessarily a real child. If N is a newly inserted node, U must be a NIL node. This is because N replaced a NIL. Before this, the tree was balanced, so the black-height from G to that NIL was 2 (including the NIL, or 1 without it; the result is the same). Since U is black, if U were a real node, the black-height from G to a NIL below U would be at least 3 (G, U, and the NIL itself). Therefore, U must be a NIL to maintain a black-height of 2.
+- N cannot necessarily be rotated, as it might not have children (e.g., when just inserted).
+- Similarly, U might not have a right child and thus cannot be rotated.
+- P could be right-rotated, bringing N up and P down. If N then becomes black, the black-height of path `a` increases by 1, breaking the balance. To compensate, if we make G red, the left side of G is balanced, but the right side (the G-U path) has its black-height reduced by 1, still unbalanced. So this is not a viable solution.
+- This leaves only rotating G as a meaningful option. G cannot be left-rotated because U is not necessarily a real child. If N is a newly inserted node, U must be a NIL node. This is because N replaced a NIL. Before this, the tree was balanced, so the black-height from G to that NIL was 2 (including the NIL, or 1 without it; the result is the same). Since U is black, if U were a real node, the black-height from G to a NIL below U would be at least 3 (G, U, and the NIL itself). Therefore, U must be a NIL to maintain a black-height of 2.
 
 So, the only remaining option is a right rotation on G. Let's see what that looks like:
-![G rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-2.png?raw=true)
+
+<img alt="G rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-2.png?raw=true" width="40%">
+
 As you can see, the black-node counts to `b` and `c` from `up` are unchanged, but the count to `a` has decreased by 1. This is because we moved the shared black node G to be exclusively on the right side, reducing the black-height on the left.
 
 At this point, we could simply change N to black, which would restore the count for `a` to 1, maintaining balance. The only concern is that the node under `up` is now the red P, which could create another red-red conflict. But that's okay; just like in the case where the uncle was red, we can push the problem upwards and solve it recursively.
 
 If you've studied Red-Black Trees before, you might be confused at this point. "Wait, all the articles I've read say to change P to black and G to red." Let's see the effect of that:
-![Color P black, color G red](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-3.png?raw=true)
+
+<img alt="Color P black, color G red" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-3.png?raw=true" width="40%">
 
 No conflicts at all! The black-heights at positions `a`, `b`, and `c` are all restored to their original balanced numbers. And since P is now black, it can't conflict with its parent. The tree is now valid, and the fix is complete.
 
@@ -191,20 +195,25 @@ In this case, S can lose a "blackness" and become red, X can lose a "blackness" 
 
 This is the most complex case that doesn't transform into another case.
 
-![S black, FN red](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true)
+<img alt="S black, FN red" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true" width="40%">
 
 Here, P's color is unknown and unimportant. We'll represent the number of black nodes it contributes as `P?`, which can be 0 or 1. Similarly, NN's color is unknown, and its contribution is `NN?`, also 0 or 1. The tree is currently balanced (note that X contributes 2 black nodes).
 
 First, right-rotate P:
-![P rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-2.png?raw=true)
+
+<img alt="P rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-2.png?raw=true" width="40%">
+
 The balance is now broken. The left side, `FN down`, has lost `P?`, and the right side, `X down`, has gained 1. This is understandable because we moved P to the right and S up.
 
 Next, swap the colors of S and P:
-![Swap S P color](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-3.png?raw=true)
+
+<img alt="Swap S P color" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-3.png?raw=true" width="40%">
+
 S now contributes `P?` black nodes because it inherited P's color. So, `FN down` becomes `P?`, and `X down` is still `P? + 1 + 2`. These two positions are still not balanced.
 
 Finally, we change FN to black, and X loses one "blackness" to become a normal black node:
-![finish](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-4.png?raw=true)
+
+<img alt="finish" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-4.png?raw=true" width="40%">
 
 Now, `FN down` is restored to `P? + 1`, and `X down` is restored to `P? + 2`. Both are balanced again. Perfect.
 
@@ -213,11 +222,16 @@ Now, `FN down` is restored to `P? + 1`, and `X down` is restored to `P? + 2`. Bo
 This needs to be converted to the "FN is red" case above, which can be done with one rotation and a recolor.
 
 Initial state:
-![init](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true)
+
+<img alt="init" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true" width="40%">
+
 Left-rotate S:
-![S rotate left](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-2.png?raw=true)
+
+<img alt="S rotate left" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-2.png?raw=true" width="40%">
+
 Swap the colors of S and NN:
-![Swap S NN color](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-3.png?raw=true)
+
+<img alt="Swap S NN color" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-3.png?raw=true" width="40%">
 
 This transforms it into the "S is black, FN is red" case.
 
@@ -343,10 +357,10 @@ impl<K: Key, V: Value> RBTree<K, V> {
 
 Reading and writing `MaybeUninit` also requires `unsafe`, as it's a contract with the compiler: "I guarantee this value has been initialized." The compiler can't check this, so `unsafe` is used as a reminder. There are four common methods:
 
--   `key.write(new_key)` - Write a value
--   `key.assume_init()` - Take ownership
--   `key.assume_init_ref()` - Get an immutable reference
--   `key.assume_init_mut()` - Get a mutable reference
+- `key.write(new_key)` - Write a value
+- `key.assume_init()` - Take ownership
+- `key.assume_init_ref()` - Get an immutable reference
+- `key.assume_init_mut()` - Get a mutable reference
 
 The last three methods require an `unsafe` block, and calling them on an uninitialized value results in UB (undefined behavior).
 
