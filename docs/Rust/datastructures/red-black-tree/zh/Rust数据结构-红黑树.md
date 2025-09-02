@@ -117,7 +117,7 @@
 
 这种情况下就没法单纯通过变色来实现了, 不管怎么变都会破坏平衡, 所以需要旋转. 这时候需要考虑 N-P-G 三者的连线关系. 如果是一条直线, 那么是比较简单的情况.
 
-![U is black](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true)
+<img alt="U is black" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true" width="50%" />
 
 具体怎么旋转呢, 我们可以用排除法一个个看.
 
@@ -195,7 +195,7 @@ Double-Black 有两种消除方式:
 
 这是红黑树所有情况里不转换为其他情况的最复杂的情况.
 
-![S black, FN red](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true)
+<img alt="S black, FN red" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true" width="50%" />
 
 此时 P 颜色未知, 也不重要. 对于这个位置提供的黑色节点数量, 我们用 `P?` 表示, 可能为 0 也可能为 1. 同理, NN 的颜色未知, 也不重要, 提供的黑色节点数量用 `NN?` 表示, 同样可能为 0 或者 1. 此时整棵树是平衡的 (注意 X 提供的黑色节点数量是 2).
 
@@ -223,7 +223,7 @@ Double-Black 有两种消除方式:
 
 初始状态:
 
-![init](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true)
+<img alt="init" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true" width="50%" />
 
 将 S 左旋:
 
@@ -243,11 +243,9 @@ Double-Black 有两种消除方式:
 4. 如果兄弟不可能变红, 看远侄子. 如果是红色, 那么 P 转一下把 S 转上来, P 和 S 交换颜色, Double-Black 自然消除.
 5. 如果远侄子是黑色, 近侄子是红色, 那么通过旋转转换为远侄子是红色的情况.
 
-# 5. Rust 语言特性相关问题
+# 6. Rust 语言特性相关问题
 
 Rust 因为自己本身就是个比较特别的语言, 相比其他语言实现红黑树, Rust 需要有更多的考虑, 比如内存管理, trait 设计等. 如果你对 Rust 不感兴趣, 可以直接跳过, 红黑树本身的内容已经在上面介绍完毕.
-
-## 5.1 数据结构设计
 
 首先考虑节点的结构. `key`, `value`, `color`, `left`, `right` 必不可少. 由于需要频繁访问父亲, 祖父, 叔叔等亲属, 所以加一个 `parent` 来方便访问.
 
@@ -365,6 +363,8 @@ impl<K: Key, V: Value> RBTree<K, V> {
 后面 3 个方法都需要 unsafe block, 并且一旦对未初始化的值调用就会 UB (undefined behavior).
 
 接下来红黑树本身的实现就没有什么问题了, 你会发现因为 `header` 和 `nil` 两个哨兵的存在, 算法里会少非常多的判断(但不代表完全不用判断), 比如树是否为空, 兄弟是否为空等等.
+
+## 6.2 内存管理
 
 接下来就是 unsafe Rust 相当难的一个点了: 内存管理 (很不幸我没有任何 C/C++ 经验, 这个对我来说真的很难). 现在一颗红黑树的所有节点都已经泄露在内存里了, 当红黑树自己 Drop 的时候, 需要手动去 free 每一个节点:
 
@@ -548,10 +548,10 @@ pub struct RBTreeIntoIter<K: Key, V: Value> {
 }
 ```
 
-# 6. 总结
+# 7. 总结
 
 红黑树虽然作为大名鼎鼎的高难度数据结构, 但其实只要理解了每一个操作的合理性, 也就是保证从外部(受影响的部分的顶部到底部的路径经过的黑色节点数)看不发生变化, 那么记起来还是不难的. 最巧妙的是对于某些情况, 通过转换成另外一些更容易解决的情况(比如删除操作中, 把红兄弟通过旋转变成黑兄弟). 剩下的难度主要就是二叉树本身的操作, 比如指针赋值, 旋转等. 而 Rust 实现红黑树, 因为需要手动管理内存, 又引入了一些复杂度, 但是我们通过 `MaybeUninit` + `ManuallyDrop` 成功解决了这些问题.
 
-# 7. 完整代码
+# 8. 完整代码
 
 https://github.com/Arichy/red-black-tree-rs

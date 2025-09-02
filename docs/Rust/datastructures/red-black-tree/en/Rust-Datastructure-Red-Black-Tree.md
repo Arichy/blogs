@@ -117,7 +117,7 @@ This is the easiest case to solve. Simply change U to black. This solves both pr
 
 In this case, we can't solve it with just recoloring; any change will break the balance. So, rotation is needed. We need to consider the alignment of N-P-G. If they form a straight line, it's a simpler case.
 
-![U is black](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true)
+<img alt="U is black" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true" width="50%" />
 
 How should we rotate? We can use a process of elimination.
 
@@ -195,7 +195,7 @@ In this case, S can lose a "blackness" and become red, X can lose a "blackness" 
 
 This is the most complex case that doesn't transform into another case.
 
-![S black, FN red](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true)
+<img alt="S black, FN red" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true" width="50%" />
 
 Here, P's color is unknown and unimportant. We'll represent the number of black nodes it contributes as `P?`, which can be 0 or 1. Similarly, NN's color is unknown, and its contribution is `NN?`, also 0 or 1. The tree is currently balanced (note that X contributes 2 black nodes).
 
@@ -223,7 +223,7 @@ This needs to be converted to the "FN is red" case above, which can be done with
 
 Initial state:
 
-![init](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true)
+<img alt="init" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true" width="50%" />
 
 Left-rotate S:
 
@@ -365,6 +365,8 @@ Reading and writing `MaybeUninit` also requires `unsafe`, as it's a contract wit
 The last three methods require an `unsafe` block, and calling them on an uninitialized value results in UB (undefined behavior).
 
 The rest of the Red-Black Tree implementation is straightforward. You'll find that the `header` and `nil` sentinels eliminate a lot of checks (though not all), such as whether the tree is empty, whether a sibling is null, etc.
+
+## 6.2 Memory Management
 
 Now comes a very difficult part of unsafe Rust: memory management (unfortunately, I have no C/C++ experience, so this was really hard for me). All the nodes of a Red-Black Tree are now leaked into memory. When the tree itself is dropped, we need to manually free every node:
 
