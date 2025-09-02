@@ -215,7 +215,7 @@ Double-Black 有两种消除方式:
 
 <img alt="finish" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-4.png?raw=true" width="40%">
 
-现在 Fn down 恢复了 `P? + 1`, X down 恢复成了 `P" + 2`, 都恢复了平衡, 完美.
+现在 Fn down 恢复了 `P? + 1`, X down 恢复成了 `P? + 2`, 都恢复了平衡, 完美.
 
 #### 5.2.2.3: S 黑, FN(远侄子)黑, NN(近侄子)红
 
