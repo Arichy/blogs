@@ -92,9 +92,19 @@ function traverseDir(dir) {
 }
 traverseDir(docsDir);
 
-tableContent += Object.entries(map).reduce((acc, cur) => {
-  return acc + `| ${cur[1].en} | ${cur[1].zh} |\n`;
-}, '');
+tableContent += Object.entries(map)
+  .sort((a, b) => {
+    if (a[1].en < b[1].en) {
+      return -1;
+    }
+    if (a[1].en > b[1].en) {
+      return 1;
+    }
+    return 0;
+  })
+  .reduce((acc, cur) => {
+    return acc + `| ${cur[1].en} | ${cur[1].zh} |\n`;
+  }, '');
 
 const newReadmeContent = `${fixedContent}\n${tableContent}`;
 
