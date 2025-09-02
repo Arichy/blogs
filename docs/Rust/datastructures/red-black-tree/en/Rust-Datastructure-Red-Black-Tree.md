@@ -60,7 +60,7 @@ For each operation, we need to focus on its impact, specifically on rules 4 and 
 
 Recoloring means changing a node's color to a specific color. **Recoloring affects 2 paths**.
 
-<img alt="recolor N black" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-1.png?raw=true">
+![recolor N black](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-1.png?raw=true)
 
 A few notes about the diagrams in this article:
 
@@ -76,7 +76,7 @@ Rotations are divided into left and right rotations:
 - A left rotation on a node promotes its right child to its position, making itself the left child of the former right child. The former right child's left child becomes the new right child of the original node.
 - A right rotation on a node promotes its left child to its position, making itself the right child of the former left child. The former left child's right child becomes the new left child of the original node.
 
-<img alt="rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-2.png?raw=true">
+![rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-2.png?raw=true)
 
 Only a node with a real left child can be right-rotated, and only a node with a real right child can be left-rotated.
 
@@ -117,7 +117,7 @@ This is the easiest case to solve. Simply change U to black. This solves both pr
 
 In this case, we can't solve it with just recoloring; any change will break the balance. So, rotation is needed. We need to consider the alignment of N-P-G. If they form a straight line, it's a simpler case.
 
-<img alt="U is black" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true" width="40%">
+![U is black](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true)
 
 How should we rotate? We can use a process of elimination.
 
@@ -128,7 +128,7 @@ How should we rotate? We can use a process of elimination.
 
 So, the only remaining option is a right rotation on G. Let's see what that looks like:
 
-<img alt="G rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-2.png?raw=true" width="40%">
+![G rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-2.png?raw=true)
 
 As you can see, the black-node counts to `b` and `c` from `up` are unchanged, but the count to `a` has decreased by 1. This is because we moved the shared black node G to be exclusively on the right side, reducing the black-height on the left.
 
@@ -136,7 +136,7 @@ At this point, we could simply change N to black, which would restore the count 
 
 If you've studied Red-Black Trees before, you might be confused at this point. "Wait, all the articles I've read say to change P to black and G to red." Let's see the effect of that:
 
-<img alt="Color P black, color G red" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-3.png?raw=true" width="40%">
+![Color P black, color G red](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-3.png?raw=true)
 
 No conflicts at all! The black-heights at positions `a`, `b`, and `c` are all restored to their original balanced numbers. And since P is now black, it can't conflict with its parent. The tree is now valid, and the fix is complete.
 
@@ -195,25 +195,25 @@ In this case, S can lose a "blackness" and become red, X can lose a "blackness" 
 
 This is the most complex case that doesn't transform into another case.
 
-<img alt="S black, FN red" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true" width="40%">
+![S black, FN red](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true)
 
 Here, P's color is unknown and unimportant. We'll represent the number of black nodes it contributes as `P?`, which can be 0 or 1. Similarly, NN's color is unknown, and its contribution is `NN?`, also 0 or 1. The tree is currently balanced (note that X contributes 2 black nodes).
 
 First, right-rotate P:
 
-<img alt="P rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-2.png?raw=true" width="40%">
+![P rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-2.png?raw=true)
 
 The balance is now broken. The left side, `FN down`, has lost `P?`, and the right side, `X down`, has gained 1. This is understandable because we moved P to the right and S up.
 
 Next, swap the colors of S and P:
 
-<img alt="Swap S P color" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-3.png?raw=true" width="40%">
+![Swap S P color](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-3.png?raw=true)
 
 S now contributes `P?` black nodes because it inherited P's color. So, `FN down` becomes `P?`, and `X down` is still `P? + 1 + 2`. These two positions are still not balanced.
 
 Finally, we change FN to black, and X loses one "blackness" to become a normal black node:
 
-<img alt="finish" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-4.png?raw=true" width="40%">
+![finish](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-4.png?raw=true)
 
 Now, `FN down` is restored to `P? + 1`, and `X down` is restored to `P? + 2`. Both are balanced again. Perfect.
 
@@ -223,15 +223,15 @@ This needs to be converted to the "FN is red" case above, which can be done with
 
 Initial state:
 
-<img alt="init" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true" width="40%">
+![init](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true)
 
 Left-rotate S:
 
-<img alt="S rotate left" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-2.png?raw=true" width="40%">
+![S rotate left](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-2.png?raw=true)
 
 Swap the colors of S and NN:
 
-<img alt="Swap S NN color" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-3.png?raw=true" width="40%">
+![Swap S NN color](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-3.png?raw=true)
 
 This transforms it into the "S is black, FN is red" case.
 

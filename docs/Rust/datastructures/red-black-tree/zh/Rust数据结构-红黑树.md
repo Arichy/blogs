@@ -60,7 +60,7 @@
 
 变色指的是将一个节点染成某个颜色(注意染色不一定是变色, 后续在删除操作中有继承某个节点未知颜色的操作, 继承后可能颜色不变). **染色操作会影响 2 条路径**.
 
-<img alt="recolor N black" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-1.png?raw=true">
+![recolor N black](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-1.png?raw=true)
 
 关于本文的图, 有几个注意点:
 
@@ -76,7 +76,7 @@
 - 对一个节点左旋表示将自己的右孩子提上来取代自己的位置, 自己成为右孩子的左孩子, 同时右孩子以前的左孩子作为自己新的右孩子
 - 对一个节点右旋表示将自己的左孩子提上来取代自己的位置, 自己成为左孩子的右孩子, 同时左孩子以前的右孩子作为自己新的左孩子
 
-<img alt="rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-2.png?raw=true">
+![rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/2.1-2.png?raw=true)
 
 只有有真实左孩子的节点才可以右旋, 只有有真实右孩子的节点才可以左旋.
 
@@ -117,7 +117,7 @@
 
 这种情况下就没法单纯通过变色来实现了, 不管怎么变都会破坏平衡, 所以需要旋转. 这时候需要考虑 N-P-G 三者的连线关系. 如果是一条直线, 那么是比较简单的情况.
 
-<img alt="U is black" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true" width="40%">
+![U is black](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-1.png?raw=true)
 
 具体怎么旋转呢, 我们可以用排除法一个个看.
 
@@ -128,7 +128,7 @@
 
 所以只剩下 G 右旋这一种操作了. 我们看看 G 右旋后的样子:
 
-<img alt="G rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-2.png?raw=true" width="40%">
+![G rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-2.png?raw=true)
 
 可以看到 up 到 b c 的黑色节点数没变, 但是 a 的 -1 了, 这是因为我们把一个公共的黑色的 G 移到了右边独占, 所以左边黑高就少了 1.
 
@@ -136,7 +136,7 @@
 
 看到这里, 如果你之前了解过红黑树, 或许你会疑惑, 不对啊, 我看过的所有文章都说的是此时应该 P 变黑, G 变红啊. 让我们看看这样做的效果:
 
-<img alt="Color P black, color G red" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-3.png?raw=true" width="40%">
+![Color P black, color G red](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/4.2.2-3.png?raw=true)
 
 无任何冲突! 此时 a b c 三个位置的黑高都恢复成了最开始平衡时的数字, 并且 P 变黑也不可能和 P 的父节点产生冲突. 此时的树就是合法的, 修复结束.
 
@@ -195,25 +195,25 @@ Double-Black 有两种消除方式:
 
 这是红黑树所有情况里不转换为其他情况的最复杂的情况.
 
-<img alt="S black, FN red" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true" width="40%">
+![S black, FN red](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-1.png?raw=true)
 
 此时 P 颜色未知, 也不重要. 对于这个位置提供的黑色节点数量, 我们用 `P?` 表示, 可能为 0 也可能为 1. 同理, NN 的颜色未知, 也不重要, 提供的黑色节点数量用 `NN?` 表示, 同样可能为 0 或者 1. 此时整棵树是平衡的 (注意 X 提供的黑色节点数量是 2).
 
 先对 P 右转:
 
-<img alt="P rotate right" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-2.png?raw=true" width="40%">
+![P rotate right](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-2.png?raw=true)
 
 此时平衡被打破, 左边 FN down 少了 `P?`, 右边 X down 多了 1. 这可以理解, 因为我们把 P 挪到了右边, 把 S 挪上来了.
 
 然后交换 S 和 P 的颜色:
 
-<img alt="Swap S P color" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-3.png?raw=true" width="40%">
+![Swap S P color](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-3.png?raw=true)
 
 此时 S 提供的黑色节点数量依然是 `P?`, 因为它获得了 P 的颜色, 所以 FN down 变为 `P?`, X down 依然是 `P? + 1 + 2`, 这两个位置依然不平衡.
 
 最后我们把 FN 变黑, X 失去一个黑色, 变为普通黑色:
 
-<img alt="finish" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-4.png?raw=true" width="40%">
+![finish](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.2-4.png?raw=true)
 
 现在 Fn down 恢复了 `P? + 1`, X down 恢复成了 `P? + 2`, 都恢复了平衡, 完美.
 
@@ -223,15 +223,15 @@ Double-Black 有两种消除方式:
 
 初始状态:
 
-<img alt="init" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true" width="40%">
+![init](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-1.png?raw=true)
 
 将 S 左旋:
 
-<img alt="S rotate left" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-2.png?raw=true" width="40%">
+![S rotate left](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-2.png?raw=true)
 
 将 S, NN 交换颜色:
 
-<img alt="Swap S NN color" src="https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-3.png?raw=true" width="40%">
+![Swap S NN color](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/imgs/5.2.2.3-3.png?raw=true)
 
 就转换为了 S 黑, FN 红的情况.
 
