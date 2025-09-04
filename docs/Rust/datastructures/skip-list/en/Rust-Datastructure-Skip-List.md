@@ -1,4 +1,4 @@
-# Rust Data Structures: Skip List
+# Rust Data Structures - Skip List
 
 A skip list is an ordered data structure based on a linked list that allows for fast lookups and insertions. The time complexity for insertion, lookup, and deletion is `O(log N)`, and it remains sorted after these operations. Redis's `SortedSet` data type is implemented using a skip list.
 
@@ -75,7 +75,7 @@ The skip list described so far has a problem: it cannot quickly access the nth e
 
 # Data Structure
 
-````rust
+```rust
 pub trait Key: Ord {} // Key must implement Ord
 impl<T> Key for T where T: Ord {}
 
@@ -156,7 +156,7 @@ pub struct SkipList<K: Key, V: Value> {
 }
 
 const MAX_LEVEL: usize = 32;
-````
+```
 
 Similar to the [Red-Black Tree](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/en/Rust-Datastructure-Red-Black-Tree.md), since the `key` and `value` of the sentinel nodes `head` and `tail` cannot hold values, we need to use `MaybeUninit`. Unlike the Red-Black Tree, the `IntoIter` for a skip list can release nodes after each iteration because it doesn't need to preserve the tree structure to find the successor. Therefore, we don't need to use `ManuallyDrop` for the `key` and `value`.
 
@@ -182,7 +182,7 @@ pub fn insert(&mut self, key: K, value: V) -> Option<V> {
         self.level = level;
     }
 
-    // update[i] stores the pointer to the node at level i that needs to be updated. 
+    // update[i] stores the pointer to the node at level i that needs to be updated.
     // It points to the last node at level i with a key less than the new key.
     let mut update = vec![NodePtr::dangling(); self.level + 1];
     let mut steps = vec![0; self.level + 1];
@@ -303,7 +303,7 @@ impl<K: Key, V: Value> Drop for SkipList<K, V> {
 
 Here is a performance comparison for lookups between a Skip List, a Linked List, and a `BTreeMap`:
 
-![comparisons](../imgs/comparison.png)
+![comparisons](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/skip-list/imgs/comparison.png?raw=true)
 
 As you can see, as the number of elements increases, the performance of the linked list deteriorates sharply, while the performance of the skip list and `BTreeMap` remains almost constant. This again proves that the overall time complexity for lookups in a skip list is `O(log N)`.
 
