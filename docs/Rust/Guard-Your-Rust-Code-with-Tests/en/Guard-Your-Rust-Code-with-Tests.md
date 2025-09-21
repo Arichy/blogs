@@ -195,4 +195,4 @@ This article introduced three testing methods:
 -   **Differential Testing**: Tests whether the output of a structure or function is consistent with a standard implementation.
 -   **Snapshot Testing**: Compares against a snapshot generated on the first run, often used when the expected value is difficult to write by hand.
 
-With the protection of various tests, we can iterate on existing features with confidence, leading to an order-of-magnitude improvement in development efficiency. And, the satisfaction of seeing `cargo nextest r` pass is much stronger than `cargo build`!
+With the protection of various tests, we can iterate on existing features with confidence, leading to an order-of-magnitude improvement in development efficiency. Especially in this age of AI, AI can help us write any test case, providing a natural guard. And, the satisfaction of seeing `cargo nextest r` pass is much stronger than `cargo build`!
