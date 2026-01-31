@@ -1,0 +1,8 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["docs/**/config.json"],
+      "url": "./scripts/blog-config-schema.json"
+    }
+  ]
+}

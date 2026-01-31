@@ -1,0 +1,7 @@
+{
+  "type": "series",
+  "title": {
+    "en": "Observability With OpenTelemetry And SigNoz",
+    "zh": "Rust 可观测性：OpenTelemetry 与 SigNoz 实战"
+  }
+}
