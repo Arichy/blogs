@@ -26,7 +26,7 @@ if (fs.existsSync(readmeTemplatePath)) {
 }
 
 let tableContent = '';
-tableContent += '\n| Link | 链接 |\n';
+tableContent += '\n| Link(English) | 链接(简体中文) |\n';
 tableContent += '| ---- | ---- |\n';
 
 const docsDir = path.join(__dirname, '../docs');
@@ -42,7 +42,7 @@ function traverseDir(dir) {
   if (fs.existsSync(configPath)) {
     try {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      
+
       if (config.wip) {
         return;
       }
@@ -53,24 +53,24 @@ function traverseDir(dir) {
 
       if (config.type === 'series') {
         if (!map[articleName]) {
-            map[articleName] = {
-                en: 'N/A',
-                zh: 'N/A',
-            };
+          map[articleName] = {
+            en: 'N/A',
+            zh: 'N/A',
+          };
         }
 
         // For series, the link points to the directory
         const githubLink = `https://github.com/${githubUsername}/${repoName}/tree/${branchName}/${encodeURIComponent(relativePath)}`;
 
         if (config.title) {
-            if (config.title.en) {
-                map[articleName].en = `[${config.title.en}](${githubLink})`;
-            }
-            if (config.title.zh) {
-                 map[articleName].zh = `[${config.title.zh}](${githubLink})`;
-            }
+          if (config.title.en) {
+            map[articleName].en = `[${config.title.en}](${githubLink})`;
+          }
+          if (config.title.zh) {
+            map[articleName].zh = `[${config.title.zh}](${githubLink})`;
+          }
         }
-        
+
         // Stop recursion for this directory
         return;
       } else {
@@ -79,63 +79,63 @@ function traverseDir(dir) {
         let enLink = null;
         let zhLink = null;
 
-        const findMdFile = (searchDir) => {
-             if (!fs.existsSync(searchDir)) return null;
-             const files = fs.readdirSync(searchDir);
-             const mdFile = files.find(f => path.extname(f) === '.md');
-             if (mdFile) return path.join(searchDir, mdFile);
-             return null;
-        }
+        const findMdFile = searchDir => {
+          if (!fs.existsSync(searchDir)) return null;
+          const files = fs.readdirSync(searchDir);
+          const mdFile = files.find(f => path.extname(f) === '.md');
+          if (mdFile) return path.join(searchDir, mdFile);
+          return null;
+        };
 
         // Search strategy:
         // 1. Check for 'en' or 'zh' subdirectories
         // 2. Check root of directory
-        
+
         const enDir = path.join(dir, 'en');
         const zhDir = path.join(dir, 'zh');
 
         const enFile = findMdFile(enDir);
         const zhFile = findMdFile(zhDir);
-        
+
         // Fallback: check root if no specific lang dir found, or if we need to fill gaps?
         // Usually if explicit 'article' type is used, we expect standard structure or we just look for *any* md file?
         // Let's stick to en/zh folders first as that matches the repo pattern.
-        
+
         if (enFile) {
-            const rel = path.relative(process.cwd(), enFile);
-            enLink = getGithubRelativePathByFilePath(rel);
+          const rel = path.relative(process.cwd(), enFile);
+          enLink = getGithubRelativePathByFilePath(rel);
         }
         if (zhFile) {
-            const rel = path.relative(process.cwd(), zhFile);
-            zhLink = getGithubRelativePathByFilePath(rel);
+          const rel = path.relative(process.cwd(), zhFile);
+          zhLink = getGithubRelativePathByFilePath(rel);
         }
 
         // If no language specific folder, maybe flat structure?
         if (!enFile && !zhFile) {
-             const rootMd = findMdFile(dir);
-             if (rootMd) {
-                 // Assume it's English if not specified? Or use for both if valid?
-                 // Let's assume it assigns to English mainly, or maybe both if we don't know.
-                 // Given the repo, usually it's en/zh. 
-                 const rel = path.relative(process.cwd(), rootMd);
-                 const link = getGithubRelativePathByFilePath(rel);
-                 // If only one file exists, link it to the configured titles.
-                 if (config.title.en) enLink = link;
-                 if (config.title.zh) zhLink = link;
-             }
+          const rootMd = findMdFile(dir);
+          if (rootMd) {
+            // Assume it's English if not specified? Or use for both if valid?
+            // Let's assume it assigns to English mainly, or maybe both if we don't know.
+            // Given the repo, usually it's en/zh.
+            const rel = path.relative(process.cwd(), rootMd);
+            const link = getGithubRelativePathByFilePath(rel);
+            // If only one file exists, link it to the configured titles.
+            if (config.title.en) enLink = link;
+            if (config.title.zh) zhLink = link;
+          }
         }
 
         if (!map[articleName]) {
-             map[articleName] = { en: 'N/A', zh: 'N/A' };
+          map[articleName] = { en: 'N/A', zh: 'N/A' };
         }
 
         if (config.title) {
-            if (config.title.en && enLink) {
-                 map[articleName].en = `[${config.title.en}](${enLink})`;
-            }
-            if (config.title.zh && zhLink) {
-                 map[articleName].zh = `[${config.title.zh}](${zhLink})`;
-            }
+          if (config.title.en && enLink) {
+            map[articleName].en = `[${config.title.en}](${enLink})`;
+          }
+          if (config.title.zh && zhLink) {
+            map[articleName].zh = `[${config.title.zh}](${zhLink})`;
+          }
         }
         return;
       }
