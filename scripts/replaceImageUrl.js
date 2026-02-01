@@ -15,6 +15,8 @@ function getGithubPathByRelPath(filePath, relPath) {
 }
 
 function handle(filePath) {
+  if (path.extname(filePath) !== '.md') return;
+
   const content = fs.readFileSync(filePath, 'utf8');
 
   // split by code blocks

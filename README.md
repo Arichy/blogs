@@ -1,13 +1,12 @@
 Just some casual thoughts from Arc. Don't take it serious.
 
 
-| Link | 链接 |
+| Link(English) | 链接(简体中文) |
 | ---- | ---- |
 | [A-Journey-From-JS-To-Rust](https://github.com/arichy/blogs/blob/main/docs%2FRust%2FA-Journey-From-JS-To-Rust%2Fen%2FA-Journey-From-JS-To-Rust.md) | [从 JS 到 Rust 的旅程](https://github.com/arichy/blogs/blob/main/docs%2FRust%2FA-Journey-From-JS-To-Rust%2Fzh%2F%E4%BB%8E%20JS%20%E5%88%B0%20Rust%20%E7%9A%84%E6%97%85%E7%A8%8B.md) |
 | [A-common-TypeScript-error-with-useRef](https://github.com/arichy/blogs/blob/main/docs%2FReact%2FA-common-TypeScript-error-with-useRef%2Fen%2FA-common-TypeScript-error-with-useRef.md) | [一个使用useRef常见的TS错误](https://github.com/arichy/blogs/blob/main/docs%2FReact%2FA-common-TypeScript-error-with-useRef%2Fzh%2F%E4%B8%80%E4%B8%AA%E4%BD%BF%E7%94%A8useRef%E5%B8%B8%E8%A7%81%E7%9A%84TS%E9%94%99%E8%AF%AF.md) |
 | [Build a simple VPN via socks 5 from scratch](https://github.com/arichy/blogs/tree/main/docs%2Fsocks5) | [N/A](https://github.com/arichy/blogs/tree/main/docs%2Fsocks5) |
 | [Guard-Your-Rust-Code-with-Tests](https://github.com/arichy/blogs/blob/main/docs%2FRust%2FGuard-Your-Rust-Code-with-Tests%2Fen%2FGuard-Your-Rust-Code-with-Tests.md) | [用测试守护你的 Rust 代码](https://github.com/arichy/blogs/blob/main/docs%2FRust%2FGuard-Your-Rust-Code-with-Tests%2Fzh%2F%E7%94%A8%E6%B5%8B%E8%AF%95%E5%AE%88%E6%8A%A4%E4%BD%A0%E7%9A%84%20Rust%20%E4%BB%A3%E7%A0%81.md) |
-| [Observability With OpenTelemetry And SigNoz](https://github.com/arichy/blogs/tree/main/docs%2FRust%2FObservability-With-OpenTelemetry-And-SigNoz) | [Rust 可观测性：OpenTelemetry 与 SigNoz 实战](https://github.com/arichy/blogs/tree/main/docs%2FRust%2FObservability-With-OpenTelemetry-And-SigNoz) |
 | [Pin in Rust: The Why and How of Immovable Memory](https://github.com/arichy/blogs/blob/main/docs%2FRust%2FPin-in-Rust%2Fen%2FPin%20in%20Rust%3A%20The%20Why%20and%20How%20of%20Immovable%20Memory.md) | [Pin 的本质: 理解 Rust 中不可移动的内存](https://github.com/arichy/blogs/blob/main/docs%2FRust%2FPin-in-Rust%2Fzh%2FPin%20%E7%9A%84%E6%9C%AC%E8%B4%A8%3A%20%E7%90%86%E8%A7%A3%20Rust%20%E4%B8%AD%E4%B8%8D%E5%8F%AF%E7%A7%BB%E5%8A%A8%E7%9A%84%E5%86%85%E5%AD%98.md) |
 | [Rust-Datastructure-Red-Black-Tree](https://github.com/arichy/blogs/blob/main/docs%2FRust%2Fdatastructures%2Fred-black-tree%2Fen%2FRust-Datastructure-Red-Black-Tree.md) | [Rust数据结构-红黑树](https://github.com/arichy/blogs/blob/main/docs%2FRust%2Fdatastructures%2Fred-black-tree%2Fzh%2FRust%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E7%BA%A2%E9%BB%91%E6%A0%91.md) |
 | [Rust-Datastructure-Skip-List](https://github.com/arichy/blogs/blob/main/docs%2FRust%2Fdatastructures%2Fskip-list%2Fen%2FRust-Datastructure-Skip-List.md) | [Rust数据结构-跳表](https://github.com/arichy/blogs/blob/main/docs%2FRust%2Fdatastructures%2Fskip-list%2Fzh%2FRust%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E8%B7%B3%E8%A1%A8.md) |

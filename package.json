@@ -8,7 +8,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.md": [
+    "*.{md,json}": [
       "node scripts/replaceImageUrl.js",
       "node scripts/entriesInReadMe.js",
       "git add README.md"
