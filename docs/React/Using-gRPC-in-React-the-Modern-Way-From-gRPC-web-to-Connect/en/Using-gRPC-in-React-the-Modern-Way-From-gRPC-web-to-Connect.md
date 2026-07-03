@@ -2,7 +2,7 @@
 
 Recently, I've been exploring how to use gRPC in React projects to interact with the backend. I searched for many articles online, but was surprised to find that there wasn't a single one that clearly explained it from scratch. So, I did some simple exploration and implemented a basic personnel CRUD service using React + Rust + Go.
 
-Complete code: https://github.com/Arichy/react-rust-go-rpc. Please note that although this article introduces multiple solutions, the frontend in the code repository uses the @bufbuild + @connect suite, not `grpc-web` or `protobuf-ts`.
+Complete code: https://github.com/arichyx/react-rust-go-rpc. Please note that although this article introduces multiple solutions, the frontend in the code repository uses the @bufbuild + @connect suite, not `grpc-web` or `protobuf-ts`.
 
 # 1. Distinguishing Concepts
 

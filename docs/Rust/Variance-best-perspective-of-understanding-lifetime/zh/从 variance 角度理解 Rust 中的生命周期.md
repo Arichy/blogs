@@ -101,7 +101,7 @@ some_animal.hello();
 
 从上述伪代码可以看出, **variance 的根本原因是读和写两种操作的数据流向是相反的**. 我们称需要的值(参数)为 `need`, 实际传入的值为 `real`, 在读操作下, 数据是从 `real` 流向 `need`, 所以需要 `real` 包含所有 `need` 包含的信息, 即 `real` 需要是 `need` 的子类型. 相反, 在写操作下, 数据是从 `need` 流向 `real`, 所以需要 `need` 包含所有 `real` 包含的信息, 即 `need` 需要是 `real` 的子类型.
 
-![data flow](https://github.com/Arichy/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/data_flow.png?raw=true?raw=true)
+![data flow](https://github.com/arichyx/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/data_flow.png?raw=true)
 
 ## 可变性和写操作
 
@@ -514,7 +514,7 @@ pub fn get_interface<'b>(&'b mut self) -> Interface<'a>
 
 请特别注意, `self.manager` 的生命周期和 `self.manager` 包含的生命周期是不一样的. 我们在函数内部创建并返回的 `&mut self.manager<'a>`, 这个可变引用的生命周期是 `'b`, 而不是 `'a`, 因为它来自参数 `&'b mut List<'a>`, 这个参数是一个带着 `'b` 生命周期的可变引用.
 
-![complex_memory](https://github.com/Arichy/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/data_flow.png?raw=true?raw=true)
+![complex_memory](https://github.com/arichyx/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/data_flow.png?raw=true)
 
 编译器告诉我们需要添加 `'b: 'a`. 但是我们不能这么做. 一旦这么做了, `'b` 的生命周期就会至少变成 `1~4`, 又陷入之前同样的问题.
 根本原因在于返回的 `Interface` 中携带的 `manager` 引用的生命周期不应该为 `'a`, 而是应该为 `'b`, 所以我们需要更新 `Interface<'a>`, 将其自身引用的生命周期和引用目标的引用的生命周期分开:

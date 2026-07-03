@@ -96,7 +96,7 @@ some_animal.hello();
 ```
 
 The fundamental reason for variance is that the data flow direction of read and write operations is opposite. Let's call the needed value (argument) is `need`, while the real value is `real`. Under read operations, data is flowing from `real` to `need`, so `real` needs to contain all info in `need`, or let's say `real` should be at least as useful as `need`. Conversely, under read operations, data is flowing from `need` to `real`, so `need` needs to contain all info in `real`, or let's say `need` should be at least as useful as `real`.
-![data flow](https://github.com/Arichy/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/data_flow.png?raw=true?raw=true)
+![data flow](https://github.com/arichyx/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/data_flow.png?raw=true)
 
 ## Mutability and Write
 
@@ -503,7 +503,7 @@ It's because now the lifetime is like (pseudo code):
 ```
 
 Please pay special attention, the lifetime contains in `self.manager` is different from the lifetime of `self.manager`. The former one is actually lifetime of the `&str` behind `self.manager.text`, while the latter one is of `self.manager`. The `'b` created in the function body in `&'b mut self.manager<'a>` is from the param `self: &'b mut List<'a>`.
-![complex memory](https://github.com/Arichy/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/complex_memory.png?raw=true?raw=true)
+![complex memory](https://github.com/arichyx/blogs/blob/main/docs/Rust/Variance-best-perspective-of-understanding-lifetime/imgs/complex_memory.png?raw=true)
 The compiler tells us to add `'b: 'a`, because the expected `result.manager` needs to be `&'a mut self.manager<'a>` while the actual value is `&'b mut self.manager<'a>`. According to covariance, `'b` must outlive `'a`. But we could add it, since it will extend the lifetime of the implicit `&mut list` and cause the same error as original version.
 We need to decouple the lifetime at root: `Interface<'a>`. It should have two lifetime generics.
 

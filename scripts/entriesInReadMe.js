@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const githubUsername = 'arichy';
+const githubUsername = 'arichyx';
 const repoName = 'blogs';
 const branchName = 'main';
 

@@ -158,7 +158,7 @@ pub struct SkipList<K: Key, V: Value> {
 const MAX_LEVEL: usize = 32;
 ```
 
-Similar to the [Red-Black Tree](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/red-black-tree/en/Rust-Datastructure-Red-Black-Tree.md), since the `key` and `value` of the sentinel nodes `head` and `tail` cannot hold values, we need to use `MaybeUninit`. Unlike the Red-Black Tree, the `IntoIter` for a skip list can release nodes after each iteration because it doesn't need to preserve the tree structure to find the successor. Therefore, we don't need to use `ManuallyDrop` for the `key` and `value`.
+Similar to the [Red-Black Tree](https://github.com/arichyx/blogs/blob/main/docs/Rust/datastructures/red-black-tree/en/Rust-Datastructure-Red-Black-Tree.md), since the `key` and `value` of the sentinel nodes `head` and `tail` cannot hold values, we need to use `MaybeUninit`. Unlike the Red-Black Tree, the `IntoIter` for a skip list can release nodes after each iteration because it doesn't need to preserve the tree structure to find the successor. Therefore, we don't need to use `ManuallyDrop` for the `key` and `value`.
 
 # Insertion
 
@@ -303,7 +303,7 @@ impl<K: Key, V: Value> Drop for SkipList<K, V> {
 
 Here is a performance comparison for lookups between a Skip List, a Linked List, and a `BTreeMap`:
 
-![comparisons](https://github.com/Arichy/blogs/blob/main/docs/Rust/datastructures/skip-list/imgs/comparison.png?raw=true)
+![comparisons](https://github.com/arichyx/blogs/blob/main/docs/Rust/datastructures/skip-list/imgs/comparison.png?raw=true)
 
 As you can see, as the number of elements increases, the performance of the linked list deteriorates sharply, while the performance of the skip list and `BTreeMap` remains almost constant. This again proves that the overall time complexity for lookups in a skip list is `O(log N)`.
 
@@ -313,4 +313,4 @@ Both being ordered structures with `O(log N)` time complexity, the skip list is 
 
 # Complete Code
 
-https://github.com/Arichy/skip-list-rs
+https://github.com/arichyx/skip-list-rs

@@ -311,4 +311,4 @@ impl<K: Key, V: Value> Drop for SkipList<K, V> {
 
 # 完整代码
 
-https://github.com/Arichy/skip-list-rs
+https://github.com/arichyx/skip-list-rs

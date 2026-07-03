@@ -110,8 +110,8 @@ pub auto trait Unpin {}
 
 `Pin` is a struct with a **pointer type** field `Ptr`. `Pointer type` means it has `Deref` trait, such as `Box`, `Rc`, `Arc`, `&T`, `&mut T`, etc. It must store a pointer to `T` instead of direct `T`, because if `T` is store directly in `Pin`, when `Pin` moves, `T` will move together. But if `Pin` stores a pointer, it's totally fine for the pointer to move around with `Pin`.
 
-![Bad move](https://github.com/Arichy/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/bad.png?raw=true)
-![Good move](https://github.com/Arichy/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/good.png?raw=true)
+![Bad move](https://github.com/arichyx/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/bad.png?raw=true)
+![Good move](https://github.com/arichyx/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/good.png?raw=true)
 
 `Unpin` is an auto trait. If all the fieldsof a struct implement `Unpin`, then the struct itself will implement `Unpin` automatically. Everything is `Unpin` by default, including our `SelfRef`.
 

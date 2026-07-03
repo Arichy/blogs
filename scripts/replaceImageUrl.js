@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const baseUrl = 'https://github.com/Arichy/blogs/blob/main/';
+const baseUrl = 'https://github.com/arichyx/blogs/blob/main/';
 
 const files = process.argv.slice(2);
 

@@ -8,7 +8,7 @@ This article will introduce several common types of testing and their related cr
 
 # Property Testing
 
-Property testing (prop test) refers to testing whether something satisfies its corresponding properties. The test target is a structure. For example, in my [red-black tree](https://github.com/Arichy/red-black-tree-rs/blob/main/tests/prop_test.rs) code, I need to test if the red-black tree still satisfies its five properties after multiple rounds of operations:
+Property testing (prop test) refers to testing whether something satisfies its corresponding properties. The test target is a structure. For example, in my [red-black tree](https://github.com/arichyx/red-black-tree-rs/blob/main/tests/prop_test.rs) code, I need to test if the red-black tree still satisfies its five properties after multiple rounds of operations:
 
 ```rust
 use proptest::prelude::*;
@@ -54,7 +54,7 @@ Property testing can be done using the [proptest](https://docs.rs/proptest/lates
 
 # Differential Testing
 
-Differential testing refers to testing whether something is consistent with another standard implementation. The test target can be a structure or a function/method. Again, using the [red-black tree](https://github.com/Arichy/red-black-tree-rs/blob/main/tests/differential_test.rs) as an example, the purpose of a red-black tree is to implement an ordered set. How can I ensure my logic is correct? The simplest way is to compare it with a standard library ordered set like `BTreeMap`. By performing the exact same operations on both, if their outputs are identical after every step, it indicates the logic is correct.
+Differential testing refers to testing whether something is consistent with another standard implementation. The test target can be a structure or a function/method. Again, using the [red-black tree](https://github.com/arichyx/red-black-tree-rs/blob/main/tests/differential_test.rs) as an example, the purpose of a red-black tree is to implement an ordered set. How can I ensure my logic is correct? The simplest way is to compare it with a standard library ordered set like `BTreeMap`. By performing the exact same operations on both, if their outputs are identical after every step, it indicates the logic is correct.
 
 Similarly, we use proptest to generate a large number of random inputs and combine them into random operations:
 

@@ -8,7 +8,7 @@
 
 # 属性测试
 
-属性测试(prop test)指的是测试一个东西是否满足对应的属性, 测试目标是一个结构. 举个例子, 在 [红黑树](https://github.com/Arichy/red-black-tree-rs/blob/main/tests/prop_test.rs) 代码里, 就需要测试一个红黑树在经过多轮操作后是否还满足红黑树的 5 条性质:
+属性测试(prop test)指的是测试一个东西是否满足对应的属性, 测试目标是一个结构. 举个例子, 在 [红黑树](https://github.com/arichyx/red-black-tree-rs/blob/main/tests/prop_test.rs) 代码里, 就需要测试一个红黑树在经过多轮操作后是否还满足红黑树的 5 条性质:
 
 ```rust
 use proptest::prelude::*;
@@ -53,7 +53,7 @@ proptest! {
 
 # 差分测试
 
-差分测试(differential test)指的是测试一个东西和另一个标准的实现是否一致, 测试目标可以是结构, 也可以是函数方法. 还是拿[红黑树](https://github.com/Arichy/red-black-tree-rs/blob/main/tests/differential_test.rs)举例子, 一个红黑树的目的是实现有序集合, 如何保证我的逻辑是正确的呢? 最简单的方式就是和标准库的有序集合比如 `BTreeMap` 做对比. 对两者同时执行一模一样的操作, 如果每一步操作后两者的输出完全一致, 说明逻辑是正确的.
+差分测试(differential test)指的是测试一个东西和另一个标准的实现是否一致, 测试目标可以是结构, 也可以是函数方法. 还是拿[红黑树](https://github.com/arichyx/red-black-tree-rs/blob/main/tests/differential_test.rs)举例子, 一个红黑树的目的是实现有序集合, 如何保证我的逻辑是正确的呢? 最简单的方式就是和标准库的有序集合比如 `BTreeMap` 做对比. 对两者同时执行一模一样的操作, 如果每一步操作后两者的输出完全一致, 说明逻辑是正确的.
 
 同样地, 使用 proptest 生成大量随机输入, 组合成随机操作:
 

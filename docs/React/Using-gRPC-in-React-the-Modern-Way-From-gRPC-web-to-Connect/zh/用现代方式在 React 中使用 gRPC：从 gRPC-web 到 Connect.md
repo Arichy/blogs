@@ -2,7 +2,7 @@
 
 最近在探索如何在 React 项目中使用 gRPC 与后端交互, 搜了网上很多文章, 但是很震惊居然没有一篇是从 0 开始介绍得比较清楚的, 所以简单探索了一下, 用 react + rust + go 实现了一个简单的人员 CRUD 服务.
 
-完整代码: https://github.com/Arichy/react-rust-go-rpc. 请注意虽然本文介绍了多套方案, 但是在代码仓库里前端使用的是 @bufbuild + @connect 全家桶, 没有使用 `grpc-web` 和 `protobuf-ts`.
+完整代码: https://github.com/arichyx/react-rust-go-rpc. 请注意虽然本文介绍了多套方案, 但是在代码仓库里前端使用的是 @bufbuild + @connect 全家桶, 没有使用 `grpc-web` 和 `protobuf-ts`.
 
 # 1. 概念区分
 

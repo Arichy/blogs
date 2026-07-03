@@ -49,7 +49,7 @@ function App() {
 这种写法其中一个好处在于在这个组件函数首次执行的时候, 我们就初始化了 `storeRef.current`, 使其在第一次渲染结果中就可用了. 所以我们可以直接在返回的 JSX 中调用 `storeRef.current.get('key')`.
 
 但是上述代码会抛出一个错误:
-![TS error](https://github.com/Arichy/blogs/blob/main/docs/React/A-common-TypeScript-error-with-useRef/imgs/1.png?raw=true)
+![TS error](https://github.com/arichyx/blogs/blob/main/docs/React/A-common-TypeScript-error-with-useRef/imgs/1.png?raw=true)
 TS 告诉我们 `storeRef.current` 是一个 read-only property, 所以我们无法改变它的值.
 
 # 造成原因
@@ -146,7 +146,7 @@ function App() {
 }
 ```
 
-![TS error](https://github.com/Arichy/blogs/blob/main/docs/React/A-common-TypeScript-error-with-useRef/imgs/2.png?raw=true)
+![TS error](https://github.com/arichyx/blogs/blob/main/docs/React/A-common-TypeScript-error-with-useRef/imgs/2.png?raw=true)
 
 简单修改代码, 加一些类型保护, 即可修复:
 ```typescript

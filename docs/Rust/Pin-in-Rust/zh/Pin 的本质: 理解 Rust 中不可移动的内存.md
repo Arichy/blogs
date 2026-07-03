@@ -112,9 +112,9 @@ pub auto trait Unpin {}
 
 `Pin` 是一个 struct, 内部会存储一个**指针类型** `Ptr`. 这里的指针类型指的是实现了 `Deref` trait 的类型, 比如 `Box`, `Rc`, `Arc`, `&T`, `&mut T` 等. 之所以内部存的是指针而不是直接存结构体 `T`, 是因为如果将 `T` 直接存入 `Pin` 中, 那么 `T` 和 `Pin` 会被存在一起. 当 `Pin` 移动时, `T` 也会被带着一起移动. 但是如果 `Pin` 存的只是一个指针, `Pin` 带着指针移动就没问题了, 指针指向的 `T` 本身并没有移动.
 
-![Bad move](https://github.com/Arichy/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/bad.png?raw=true)
+![Bad move](https://github.com/arichyx/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/bad.png?raw=true)
 
-![Good move](https://github.com/Arichy/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/good.png?raw=true)
+![Good move](https://github.com/arichyx/blogs/blob/main/docs/Rust/Pin-in-Rust/imgs/good.png?raw=true)
 
 `Unpin` 是一个 auto trait, 也就是说如果一个结构体内部所有的字段都实现了 `Unpin`, 那么这个结构体会自动实现 `Unpin`. 默认情况下, 所有的值都是 `Unpin`. 比如我们上面写的 `SelfRef` 也是 `Unpin`. `Unpin` 的意思是, **这个结构体不关心自己是否被移动**, 并不是能移动/不能被移动. Rust 中所有类型在语义上都可以移动。`Unpin` 表示即使该类型被 `Pin` 包裹，依然可以通过 `Pin::get_mut()` 拿出其 `&mut T` 并进行移动。只有 `!Unpin` 类型才能从类型系统层面强制禁止移动。
 
