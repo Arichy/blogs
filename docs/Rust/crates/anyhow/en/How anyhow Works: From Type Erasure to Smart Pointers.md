@@ -1,4 +1,4 @@
-# How `anyhow` Works
+# How `anyhow` Works: From Type Erasure to Smart Pointers
 
 ## Preface
 
